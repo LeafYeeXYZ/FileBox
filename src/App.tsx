@@ -26,7 +26,7 @@ export default function App() {
         },
       }}
     >
-      <div className='flex flex-col items-center justify-center h-screen w-screen min-w-96'>
+      <div className='flex flex-col items-center justify-center h-screen w-screen min-w-96 relative'>
 
         <Radio.Group 
           className='w-full mb-4 max-w-sm'
@@ -56,15 +56,18 @@ export default function App() {
         </div>
 
       </div>
+
+      <p className='absolute bottom-0 left-0 w-full text-center m-2 text-xs text-gray-500'>
+        <a href='https://www.leafyee.xyz' target='_blank'>小叶子 <ExportOutlined className='text-[0.65rem]' /></a><span className='mx-2'>|</span>GPL-3.0 License<span className='mx-2'>|</span><a href='https://github.com/LeafYeeXYZ/FileBox' target='_blank'>Github <ExportOutlined className='text-[0.65rem]' /></a>
+      </p>
+
       <Modal
         title={modelTitle}
         content={modelContent}
         isModelOpen={isModelOpen}
         setIsModelOpen={setIsModelOpen}
       />
-      <p className='absolute bottom-0 left-0 w-full text-center m-2 text-xs text-gray-500'>
-        <a href='https://www.leafyee.xyz' target='_blank'>小叶子 <ExportOutlined className='text-[0.65rem]' /></a><span className='mx-2'>|</span>GPL-3.0 License<span className='mx-2'>|</span><a href='https://github.com/LeafYeeXYZ/FileBox' target='_blank'>Github <ExportOutlined className='text-[0.65rem]' /></a>
-      </p>
+
     </ConfigProvider>
   )
 }

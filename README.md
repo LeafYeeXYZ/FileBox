@@ -1,6 +1,6 @@
-**基于 `Cloudflare R2` 存储桶的无服务器文件快递柜**
+**基于 `Cloudflare R2` 存储桶的无服务器文件快递柜, 采用 `WebSockets`, `React`, `Ant Design`, `Tailwind CSS`, `Hono` (后端) 等技术栈.**
 
-**A serverless file delivery web app based on `Cloudflare R2`**
+**A serverless file delivery web app based on `Cloudflare R2`, using `WebSockets`, `React`, `Ant Design`, `Tailwind CSS`, `Hono` (backend), etc.**
 
 # Usage
 

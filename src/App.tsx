@@ -4,7 +4,7 @@ import Download from './components/Download'
 import Config from './components/Config'
 import Modal from './components/Model'
 import { useState } from 'react'
-import { CloudUploadOutlined, CloudDownloadOutlined, SettingOutlined } from '@ant-design/icons'
+import { CloudUploadOutlined, CloudDownloadOutlined, SettingOutlined, ExportOutlined } from '@ant-design/icons'
 
 export default function App() {
 
@@ -62,6 +62,9 @@ export default function App() {
         isModelOpen={isModelOpen}
         setIsModelOpen={setIsModelOpen}
       />
+      <p className='absolute bottom-0 left-0 w-full text-center m-2 text-xs text-gray-500'>
+        <a href='https://www.leafyee.xyz' target='_blank'>小叶子 <ExportOutlined className='text-[0.65rem]' /></a><span className='mx-2'>|</span>GPL-3.0 License<span className='mx-2'>|</span><a href='https://github.com/LeafYeeXYZ/FileBox' target='_blank'>Github <ExportOutlined className='text-[0.65rem]' /></a>
+      </p>
     </ConfigProvider>
   )
 }

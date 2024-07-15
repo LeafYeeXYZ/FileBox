@@ -1,4 +1,4 @@
-import { Input, Button } from 'antd'
+import { Input, Button, Switch } from 'antd'
 import { GiftOutlined, LoadingOutlined } from '@ant-design/icons'
 import { useRef, useState } from 'react'
 import { flushSync } from 'react-dom'
@@ -14,6 +14,8 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
 
   // 取件码
   const keyRef = useRef<string>('')
+  // 下载后是否删除
+  const deleteRef = useRef<boolean>(true)
 
   // 下载按钮的状态
   const download = <span>下载</span>
@@ -52,6 +54,15 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
         placeholder='请输入取件码'
         onChange={e => keyRef.current = e.target.value}
         disabled={isDownloading}
+      />
+
+      <Switch
+        className='mt-1'
+        checkedChildren='下载后删除云端文件'
+        unCheckedChildren='下载后删除云端文件'
+        defaultChecked
+        disabled={isDownloading}
+        onChange={checked => deleteRef.current = checked}
       />
 
       <Button

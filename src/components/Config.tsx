@@ -1,5 +1,5 @@
 import { Input, Button } from 'antd'
-import { CloudOutlined, UploadOutlined, DownloadOutlined, ExportOutlined } from '@ant-design/icons'
+import { CloudOutlined, UploadOutlined, DownloadOutlined } from '@ant-design/icons'
 
 export default function Config() {
 
@@ -44,22 +44,15 @@ export default function Config() {
           onChange={e => localStorage.setItem('DOWNLOAD_PW', e.target.value)}
         />
 
-        <div className='absolute bottom-0 flex flex-row justify-between w-full'>
-          <Button
-            onClick={() => {
-              localStorage.clear()
-              window.location.reload()
-            }}
-          >
-            重置为默认值
-          </Button>
-          <Button
-            onClick={() => window.open('https://github.com/LeafYeeXYZ/FileBox')}
-          >
-            Github <ExportOutlined />
-          </Button>
-
-        </div>
+        <Button
+          className='absolute bottom-0 left-0 w-full'
+          onClick={() => {
+            localStorage.clear()
+            window.location.reload()
+          }}
+        >
+          重置为默认值
+        </Button>
     </div>
   )
 }

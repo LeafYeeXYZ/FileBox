@@ -88,7 +88,7 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
         data = [...data, ...downloadData.data]
         end = downloadData.index === downloadData.max
         filename = downloadData.filename
-        flushSync(() => setProgress(+(20 + 85 * (downloadData.index + 1) / (downloadData.max + 1)).toFixed(2)))
+        flushSync(() => setProgress(+(10 + 90 * (downloadData.index + 1) / (downloadData.max + 1)).toFixed(2)))
       }
       // 关闭 WebSocket
       ws.close()

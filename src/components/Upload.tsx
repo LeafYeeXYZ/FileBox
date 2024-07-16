@@ -92,7 +92,7 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
             }
           })
         })
-        flushSync(() => setProgress(+(10 + 85 * (i + 1) / chunks).toFixed(2)))
+        flushSync(() => setProgress(+(10 + 90 * (i + 1) / chunks).toFixed(2)))
       }
       // 关闭 WebSocket
       ws.close()

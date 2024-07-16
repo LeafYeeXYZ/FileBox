@@ -14,7 +14,7 @@ type DownloadProps = {
 export default function Download({ setDisabled, setIsModelOpen, setModelTitle, setModelContent }: DownloadProps) {
 
   // 取件码
-  const keyRef = useRef<string>('')
+  const keyRef = useRef<string>(sessionStorage.getItem('downloadKey') ?? '')
   // 下载后是否删除
   const deleteRef = useRef<boolean>(true)
 
@@ -135,7 +135,11 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
       <Input
         className='mb-2'
         placeholder='请输入取件码'
-        onChange={e => keyRef.current = e.target.value}
+        defaultValue={keyRef.current}
+        onChange={e => {
+          keyRef.current = e.target.value
+          sessionStorage.setItem('downloadKey', e.target.value)
+        }}
         disabled={isDownloading}
       />
 

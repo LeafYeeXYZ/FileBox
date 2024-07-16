@@ -22,7 +22,7 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
   // 上传的文件
   const [file, setFile] = useState<RcFile | null>(null)
   // 取件码
-  const keyRef = useRef<string>('')
+  const keyRef = useRef<string>(sessionStorage.getItem('uploadKey') ?? '')
   // 上传进度
   const [progress, setProgress] = useState<number>(0)
 
@@ -149,8 +149,12 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
       <Input
         className='mb-2'
         placeholder='请输入取件码'
-        onChange={e => keyRef.current = e.target.value}
+        onChange={e => {
+          keyRef.current = e.target.value
+          sessionStorage.setItem('uploadKey', e.target.value)
+        }}
         disabled={isUploading}
+        defaultValue={keyRef.current}
       />
 
       <Progress

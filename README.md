@@ -2,6 +2,9 @@
 
 **A serverless file delivery web app based on `Cloudflare R2`, using `WebSockets`, `React`, `Ant Design`, `Tailwind CSS`, `Hono`, etc.**
 
+|![](README_1.png)|![](README_2.png)|![](README_3.png)|
+|:---:|:---:|:---:|
+
 # Usage
 使用方法
 

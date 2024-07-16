@@ -45,7 +45,7 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
       if (!server) throw new Error('请设置服务器地址')
       if (!password) throw new Error('请设置下载密码')
       // 启动 WebSocket
-      flushSync(() => setProgress(10))
+      flushSync(() => setProgress(5))
       const client = hc(`https://${server}/filebox/download`)
       const ws = client.ws.$ws(0)
       await new Promise((resolve, reject) => {
@@ -57,7 +57,7 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
         })
       })
       // 发送下载请求
-      flushSync(() => setProgress(20))
+      flushSync(() => setProgress(10))
       let data: number[] = []
       let end: boolean = false
       let filename: string = ''
@@ -83,7 +83,7 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
         data = [...data, ...downloadData.data]
         end = downloadData.index === downloadData.max
         filename = downloadData.filename
-        flushSync(() => setProgress(+(20 + 70 * downloadData.index / downloadData.max).toFixed(2)))
+        flushSync(() => setProgress(+(20 + 85 * downloadData.index / downloadData.max).toFixed(2)))
       }
       // 关闭 WebSocket
       ws.close()
@@ -109,7 +109,7 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
       flushSync(() => {
         setModelTitle('下载失败')
         if (error instanceof Error) {
-          setModelContent(<span>{error.name}<br />{error.message}</span>)
+          setModelContent(<span>{error.message}</span>)
         } else {
           setModelContent(<span>{JSON.stringify(error)}</span>)
         }

@@ -55,7 +55,7 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
       const chunkSize = 1024 * 256
       const chunks = Math.ceil(array.length / chunkSize)
       // 启动 WebSocket
-      flushSync(() => setProgress(10))
+      flushSync(() => setProgress(5))
       const client = hc(`https://${server}/filebox/upload`)
       const ws = client.ws.$ws(0)
       await new Promise((resolve, reject) => {
@@ -67,7 +67,7 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
         })
       })
       // 发送文件信息
-      flushSync(() => setProgress(20))
+      flushSync(() => setProgress(10))
       for (let i = 0; i < chunks; i++) {
         const chunk = array.slice(i * chunkSize, ((i + 1) * chunkSize) > array.length ? array.length : (i + 1) * chunkSize)
         ws.send(JSON.stringify({
@@ -87,7 +87,7 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
             }
           })
         })
-        flushSync(() => setProgress(+(20 + 70 * i / chunks).toFixed(2)))
+        flushSync(() => setProgress(+(10 + 85 * i / chunks).toFixed(2)))
       }
       // 关闭 WebSocket
       ws.close()
@@ -103,7 +103,7 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
       flushSync(() => {
         setModelTitle('上传失败')
         if (error instanceof Error) {
-          setModelContent(<span>{error.name}<br />{error.message}</span>)
+          setModelContent(<span>{error.message}</span>)
         } else {
           setModelContent(<span>{JSON.stringify(error)}</span>)
         }

@@ -47,7 +47,7 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
       if (!server) throw new Error('请设置服务器地址')
       if (!uploadPw) throw new Error('请设置上传密码')
       // 判断文件大小
-      if (file.size > 1024 * 1024 * 100) throw new Error('文件过大')
+      if (file.size > 1024 * 1024 * 10) throw new Error('文件过大')
       // 文件转为 number[]
       const buffer = await file.arrayBuffer()
       const array = Array.from(new Uint8Array(buffer))
@@ -79,7 +79,12 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
           filename
         }))
         await new Promise((resolve, reject) => {
+          const timer = setTimeout(() => {
+            ws.close()
+            reject(new Error('上传超时, 可能是由于网络不稳定、WebSocket 连接被防火墙屏蔽、Workers 达到最大 CPU 时间等'))
+          }, 1000 * 30)
           ws.addEventListener('message', message => {
+            clearTimeout(timer)
             if (message.data === 'continue' || message.data === 'success') {
               resolve(null)
             } else {
@@ -87,7 +92,7 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
             }
           })
         })
-        flushSync(() => setProgress(+(10 + 85 * i / chunks).toFixed(2)))
+        flushSync(() => setProgress(+(10 + 85 * (i + 1) / chunks).toFixed(2)))
       }
       // 关闭 WebSocket
       ws.close()
@@ -137,7 +142,7 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
           disabled={isUploading}
         >
           <p className='ant-upload-text'>点击或拖拽文件到此处</p>
-          <p className='ant-upload-hint'>文件需小于100MB</p>
+          <p className='ant-upload-hint'>文件需小于10MB</p>
         </Up.Dragger>
       </div>
 

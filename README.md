@@ -43,3 +43,10 @@ See [this project](https://github.com/LeafYeeXYZ/MyAPIs).
 
 #### Note
 Optioanlly, you can set `VITE_DEFAULT_SERVER` / `VITE_DEFAULT_UPLOAD_PW` / `VITE_DEFAULT_DOWNLOAD_PW` environment variables in client side `.env` file or `Cloudflare Pages`, `Vercel`, etc.
+
+# Known Issues
+已知问题
+
+Due to the limitation of max CPU time of the free plan of `Cloudflare Workers`, the maximum size of the file that can be uploaded is proximately 10MB.
+
+由于 `Cloudflare Workers` 免费计划的最大 CPU 时间限制, 可上传的文件最大大小约为 10MB.

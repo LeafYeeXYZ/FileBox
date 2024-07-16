@@ -71,7 +71,12 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
       while (!end) {
         const downloadData: DownloadData = await new Promise((resolve, reject) => {
           ws.send(JSON.stringify({ key, password, shouldDelete }))
+          const timer = setTimeout(() => {
+            ws.close()
+            reject(new Error('下载超时, 可能是由于网络不稳定、WebSocket 连接被防火墙屏蔽、Workers 达到最大 CPU 时间等'))
+          }, 1000 * 30)
           ws.addEventListener('message', event => {
+            clearTimeout(timer)
             const downloadData = JSON.parse(event.data)
             resolve(downloadData)
           })
@@ -83,7 +88,7 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
         data = [...data, ...downloadData.data]
         end = downloadData.index === downloadData.max
         filename = downloadData.filename
-        flushSync(() => setProgress(+(20 + 85 * downloadData.index / downloadData.max).toFixed(2)))
+        flushSync(() => setProgress(+(20 + 85 * (downloadData.index + 1) / (downloadData.max + 1)).toFixed(2)))
       }
       // 关闭 WebSocket
       ws.close()

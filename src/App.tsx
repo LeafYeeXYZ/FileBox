@@ -26,10 +26,10 @@ export default function App() {
         },
       }}
     >
-      <div className='flex flex-col items-center justify-center h-screen w-screen min-w-96 relative'>
+      <div className='flex flex-col items-center justify-center h-dvh w-dvw min-w-96 relative'>
 
         <Radio.Group 
-          className='w-full mb-4 max-w-sm'
+          className='w-[90%] mb-4 max-w-sm'
           disabled={disabled}
           defaultValue='download'
           options={[
@@ -51,7 +51,7 @@ export default function App() {
         >
         </Radio.Group>
 
-        <div className='w-full max-w-sm h-96 border border-gray-300 rounded-md p-4'>
+        <div className='w-[90%] max-w-sm h-96 border border-gray-300 rounded-md p-4'>
           {content}
         </div>
 

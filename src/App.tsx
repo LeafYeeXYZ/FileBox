@@ -6,6 +6,8 @@ import Modal from './components/Model'
 import { useState } from 'react'
 import { CloudUploadOutlined, CloudDownloadOutlined, SettingOutlined, ExportOutlined } from '@ant-design/icons'
 
+sessionStorage.clear()
+
 export default function App() {
 
   // 各种按钮的状态

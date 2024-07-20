@@ -217,13 +217,20 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
       />
 
       <Switch
-        className='mt-1'
+        className='mt-1 mb-1'
         checkedChildren='下载后删除云端文件'
         unCheckedChildren='下载后删除云端文件'
         defaultChecked
         disabled={isDownloading}
         onChange={checked => deleteRef.current = checked}
       />
+
+      <hr className='my-2' />
+      <p 
+        className='mb-2 mt-2 ml-1 text-gray-400 text-xs w-full text-center'
+      >
+        当前存储方式: {(localStorage.getItem('STORAGE') ?? process.env.NEXT_PUBLIC_DEFAULT_STORAGE ?? 'r2') === 'r2' ? 'Cloudflare R2' : 'MongoDB'}
+      </p>
 
       <Progress
         className='mb-2 absolute bottom-8 left-0'

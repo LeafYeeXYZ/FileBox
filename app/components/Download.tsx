@@ -1,3 +1,4 @@
+'use client'
 import { Input, Button, Switch, Progress } from 'antd'
 import { GiftOutlined, LoadingOutlined } from '@ant-design/icons'
 import { useRef, useState } from 'react'
@@ -14,7 +15,7 @@ type DownloadProps = {
 export default function Download({ setDisabled, setIsModelOpen, setModelTitle, setModelContent }: DownloadProps) {
 
   // 取件码
-  const keyRef = useRef<string>(sessionStorage.getItem('downloadKey') ?? '')
+  const keyRef = useRef<string>('')
   // 下载后是否删除
   const deleteRef = useRef<boolean>(true)
 
@@ -27,10 +28,10 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
   const [progress, setProgress] = useState<number>(0)
 
   // 下载事件处理函数
-  const handleDownload = async (key: string, shouldDelete: boolean) => {
+  const handleDownloadR2 = async (key: string, shouldDelete: boolean) => {
 
-    const server = localStorage.getItem('SERVER') ?? import.meta.env.VITE_DEFAULT_SERVER ?? ''
-    const password = localStorage.getItem('DOWNLOAD_PW') ?? import.meta.env.VITE_DEFAULT_DOWNLOAD_PW ?? ''
+    const server = localStorage.getItem('SERVER') ?? process.env.NEXT_PUBLIC_DEFAULT_SERVER ?? ''
+    const password = localStorage.getItem('DOWNLOAD_PW') ?? process.env.NEXT_PUBLIC_DEFAULT_DOWNLOAD_PW ?? ''
 
     try {
       // 设置下载状态
@@ -130,6 +131,75 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
       })
     }
   }
+  const handleDownloadMongodb = async (key: string, shouldDelete: boolean) => {
+    let timer: NodeJS.Timeout | null = null
+    const password = localStorage.getItem('DOWNLOAD_PW') ?? process.env.NEXT_PUBLIC_DEFAULT_DOWNLOAD_PW ?? ''
+
+    try {
+      // 设置下载状态
+      flushSync(() => {
+        setButtonContent(downloading)
+        setDisabled(true)
+        setIsDownloading(true)
+        setProgress(0)
+      })
+      // 判断信息
+      if (!key) throw new Error('请输入取件码')
+      if (!password) throw new Error('请设置下载密码')
+      // 发送下载请求
+      flushSync(() => setProgress(5))
+      timer = setInterval(() => {
+        flushSync(() => setProgress(prev => prev >= 97 ? prev : prev + Math.random() * 2))
+      }, 500)
+      const res = await fetch('/api/download', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ key, password, shouldDelete })
+      })
+      if (res.status !== 200) {
+        const error = await res.text()
+        throw new Error(error)
+      }
+      const data = await res.json() 
+      // 下载文件
+      const file = data.file
+      const filename = data.filename
+      const a = document.createElement('a')
+      a.href = file
+      a.download = filename
+      a.click()
+      // 弹窗提示
+      flushSync(() => {
+        setModelTitle('下载成功')
+        setModelContent(<span>如果浏览器未自动弹出下载，请<a href={file} download={filename}>点击此处下载</a></span>)
+        setIsModelOpen(true)
+      })
+
+    } catch (error) {
+      // 弹窗提示
+      flushSync(() => {
+        setModelTitle('下载失败')
+        if (error instanceof Error) {
+          setModelContent(<span>{error.message}</span>)
+        } else {
+          setModelContent(<span>{JSON.stringify(error)}</span>)
+        }
+        setIsModelOpen(true)
+      })
+
+    } finally {
+      // 清除定时器
+      if (timer) clearTimeout(timer)
+      // 恢复下载状态
+      flushSync(() => {
+        setButtonContent(download)
+        setDisabled(false)
+        setIsDownloading(false)
+      })
+    }
+  }
 
   return (
     <div className='relative w-full h-full'>
@@ -140,10 +210,8 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
       <Input
         className='mb-2'
         placeholder='请输入取件码'
-        defaultValue={keyRef.current}
         onChange={e => {
           keyRef.current = e.target.value
-          sessionStorage.setItem('downloadKey', e.target.value)
         }}
         disabled={isDownloading}
       />
@@ -160,14 +228,14 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
       <Progress
         className='mb-2 absolute bottom-8 left-0'
         style={{ display: isDownloading ? 'block' : 'none' }}
-        percent={progress}
+        percent={+progress.toFixed(2)}
         status='active'
         strokeColor={'#ff8080'}
       />
 
       <Button
         className='w-full absolute bottom-0 left-0'
-        onClick={() => handleDownload(keyRef.current, deleteRef.current)}
+        onClick={() => (localStorage.getItem('STORAGE') ?? process.env.NEXT_PUBLIC_DEFAULT_STORAGE ?? 'r2') === 'r2' ? handleDownloadR2(keyRef.current, deleteRef.current) : handleDownloadMongodb(keyRef.current, deleteRef.current)}
         disabled={isDownloading}
       >
         {buttonContent}

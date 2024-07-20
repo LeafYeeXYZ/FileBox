@@ -1,3 +1,4 @@
+'use client'
 import { Modal as Md } from 'antd'
 
 type ModalProps = {

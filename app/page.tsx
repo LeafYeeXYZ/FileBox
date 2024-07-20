@@ -1,12 +1,12 @@
+'use client'
 import { ConfigProvider, Radio } from 'antd'
 import Upload from './components/Upload'
 import Download from './components/Download'
 import Config from './components/Config'
 import Modal from './components/Model'
 import { useState } from 'react'
+import './tailwind.css'
 import { CloudUploadOutlined, CloudDownloadOutlined, SettingOutlined, ExportOutlined } from '@ant-design/icons'
-
-sessionStorage.clear()
 
 export default function App() {
 

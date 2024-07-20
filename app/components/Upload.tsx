@@ -1,3 +1,4 @@
+'use client'
 import { Upload as Up, Input, Button, Progress } from 'antd'
 import { useRef, useState } from 'react'
 import { GiftOutlined, LoadingOutlined } from '@ant-design/icons'
@@ -22,15 +23,15 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
   // 上传的文件
   const [file, setFile] = useState<RcFile | null>(null)
   // 取件码
-  const keyRef = useRef<string>(sessionStorage.getItem('uploadKey') ?? '')
+  const keyRef = useRef<string>('')
   // 上传进度
   const [progress, setProgress] = useState<number>(0)
 
   // 上传事件处理函数
-  const handleUpload = async (key: string, file: RcFile | undefined) => {
+  const handleUploadR2 = async (key: string, file: RcFile | null) => {
 
-    const server = localStorage.getItem('SERVER') ?? import.meta.env.VITE_DEFAULT_SERVER ?? ''
-    const uploadPw = localStorage.getItem('UPLOAD_PW') ?? import.meta.env.VITE_DEFAULT_UPLOAD_PW ?? ''
+    const server = localStorage.getItem('SERVER') ?? process.env.NEXT_PUBLIC_DEFAULT_SERVER ?? ''
+    const uploadPw = localStorage.getItem('UPLOAD_PW') ?? process.env.NEXT_PUBLIC_DEFAULT_UPLOAD_PW ?? ''
     const filename = file?.name ?? ''
     
     try {
@@ -124,6 +125,76 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
       })
     }
   }
+  const handleUploadMongodb = async (key: string, file: RcFile | null) => {
+    let timer: NodeJS.Timeout | null = null
+    const password = localStorage.getItem('UPLOAD_PW') ?? process.env.NEXT_PUBLIC_DEFAULT_UPLOAD_PW ?? ''
+    const filename = file?.name ?? ''
+
+    try {
+      // 设置上传状态
+      flushSync(() => {
+        setButtonContent(uploading)
+        setDisabled(true)
+        setIsUploading(true)
+        setProgress(0)
+      })
+      // 判断信息
+      if (!key) throw new Error('请输入取件码')
+      if (!file) throw new Error('请选择文件')
+      if (!password) throw new Error('请设置上传密码')
+      // 判断文件大小
+      if (file.size > 1024 * 1024 * 10) throw new Error('文件过大')
+      // base64 编码
+      const reader = new FileReader()
+      await new Promise((resolve, reject) => {
+        reader.onload = () => resolve(null)
+        reader.onerror = error => reject(error)
+        reader.readAsDataURL(file)
+      })
+      const base64 = reader.result as string
+      // 发送上传请求
+      flushSync(() => setProgress(5))
+      timer = setInterval(() => {
+        flushSync(() => setProgress(prev => prev >= 97 ? prev : prev + Math.random() * 2))
+      }, 500)
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: JSON.stringify({ key, filename, file: base64, password }),
+      })
+      if (res.status !== 200) {
+        const error = await res.text()
+        throw new Error(error)
+      }
+      // 弹窗提示
+      flushSync(() => {
+        setModelTitle('上传成功')
+        setModelContent(<span>取件码：{key}</span>)
+        setIsModelOpen(true)
+      })
+
+    } catch (error) {
+      // 弹窗提示
+      flushSync(() => {
+        setModelTitle('上传失败')
+        if (error instanceof Error) {
+          setModelContent(<span>{error.message}</span>)
+        } else {
+          setModelContent(<span>{JSON.stringify(error)}</span>)
+        }
+        setIsModelOpen(true)
+      })
+
+    } finally {
+      // 清除定时器
+      if (timer) clearInterval(timer)
+      // 恢复上传状态
+      flushSync(() => {
+        setDisabled(false)
+        setIsUploading(false)
+        setButtonContent(upload)
+      })
+    }
+  }
 
   return (
     <div className='relative w-full h-full'>
@@ -142,7 +213,8 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
           disabled={isUploading}
         >
           <p className='ant-upload-text'>点击或拖拽文件到此处</p>
-          <p className='ant-upload-hint'>文件需小于10MB</p>
+          <p className='ant-upload-hint'>文件需小于 10MB</p>
+          <p className='ant-upload-hint'>当前存储方式: {(localStorage.getItem('STORAGE') ?? process.env.NEXT_PUBLIC_DEFAULT_STORAGE ?? 'r2') === 'r2' ? 'Cloudflare R2' : 'MongoDB'}</p>
         </Up.Dragger>
       </div>
 
@@ -156,23 +228,21 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
         placeholder='请输入取件码'
         onChange={e => {
           keyRef.current = e.target.value
-          sessionStorage.setItem('uploadKey', e.target.value)
         }}
         disabled={isUploading}
-        defaultValue={keyRef.current}
       />
 
       <Progress
         className='mb-2 absolute bottom-8 left-0'
         style={{ display: isUploading ? 'block' : 'none' }}
-        percent={progress}
+        percent={+progress.toFixed(2)}
         status='active'
         strokeColor={'#ff8080'}
       />
 
       <Button
         className='w-full absolute bottom-0 left-0'
-        onClick={() => handleUpload(keyRef.current, file!)}
+        onClick={() => (localStorage.getItem('STORAGE') ?? process.env.NEXT_PUBLIC_DEFAULT_STORAGE ?? 'r2') === 'r2' ? handleUploadR2(keyRef.current, file) : handleUploadMongodb(keyRef.current, file)}
         disabled={isUploading}
       >
         {buttonContent}

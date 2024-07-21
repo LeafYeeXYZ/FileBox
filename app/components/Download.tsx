@@ -4,6 +4,7 @@ import { GiftOutlined, LoadingOutlined } from '@ant-design/icons'
 import { useRef, useState } from 'react'
 import { flushSync } from 'react-dom'
 import { hc } from 'hono/client'
+import { f0 } from 'file0'
 
 type DownloadProps = {
   setDisabled: React.Dispatch<React.SetStateAction<boolean>>
@@ -151,7 +152,7 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
       timer = setInterval(() => {
         flushSync(() => setProgress(prev => prev >= 97 ? prev : prev + Math.random() * 2))
       }, 500)
-      const res = await fetch('/api/download', {
+      const res = await fetch('/api/mongodb/download', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -174,6 +175,81 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
       flushSync(() => {
         setModelTitle('下载成功')
         setModelContent(<span>如果浏览器未自动弹出下载，请<a href={file} download={filename}>点击此处下载</a></span>)
+        setIsModelOpen(true)
+      })
+
+    } catch (error) {
+      // 弹窗提示
+      flushSync(() => {
+        setModelTitle('下载失败')
+        if (error instanceof Error) {
+          setModelContent(<span>{error.message}</span>)
+        } else {
+          setModelContent(<span>{JSON.stringify(error)}</span>)
+        }
+        setIsModelOpen(true)
+      })
+
+    } finally {
+      // 清除定时器
+      if (timer) clearTimeout(timer)
+      // 恢复下载状态
+      flushSync(() => {
+        setButtonContent(download)
+        setDisabled(false)
+        setIsDownloading(false)
+      })
+    }
+  }
+  const handleDownloadFile0 = async (key: string, shouldDelete: boolean) => {
+    let timer: NodeJS.Timeout | null = null
+    const password = localStorage.getItem('DOWNLOAD_PW') ?? process.env.NEXT_PUBLIC_DEFAULT_DOWNLOAD_PW ?? ''
+
+    try {
+      // 设置下载状态
+      flushSync(() => {
+        setButtonContent(downloading)
+        setDisabled(true)
+        setIsDownloading(true)
+        setProgress(0)
+      })
+      // 判断信息
+      if (!key) throw new Error('请输入取件码')
+      if (!password) throw new Error('请设置下载密码')
+      // 获取下载 Token
+      flushSync(() => setProgress(5))
+      const res = await fetch('/api/file0/download', {
+        method: 'POST',
+        body: JSON.stringify({ key, password })
+      })
+      if (res.status !== 200) {
+        const error = await res.text()
+        throw new Error(error)
+      }
+      const tokens = await res.json()
+      // 下载文件
+      flushSync(() => setProgress(10))
+      timer = setInterval(() => {
+        flushSync(() => setProgress(prev => prev >= 97 ? prev : prev + Math.random() * 2))
+      }, 500)
+      const filename = await f0.useToken(tokens.keyToken).get({ as: 'text' })
+      const file = await f0.useToken(tokens.fileToken).get({ as: 'blob' })
+      if (shouldDelete) {
+        await f0.useToken(tokens.keyToken).delete()
+        await f0.useToken(tokens.fileToken).delete()
+      }
+      const url = URL.createObjectURL(file!)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = filename!
+      a.click()
+      setTimeout(() => {
+        URL.revokeObjectURL(url)
+      }, 5 * 60 * 1000)
+      // 弹窗提示
+      flushSync(() => {
+        setModelTitle('下载成功')
+        setModelContent(<span>如果浏览器未自动弹出下载，请<a href={url} download={filename}>点击此处下载</a> (链接 5 分钟内有效)</span>)
         setIsModelOpen(true)
       })
 
@@ -235,7 +311,18 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
 
       <Button
         className='w-full absolute bottom-0 left-0'
-        onClick={() => (localStorage.getItem('STORAGE') ?? process.env.NEXT_PUBLIC_DEFAULT_STORAGE ?? 'r2') === 'r2' ? handleDownloadR2(keyRef.current, deleteRef.current) : handleDownloadMongodb(keyRef.current, deleteRef.current)}
+        onClick={async () => {
+          const storage = localStorage.getItem('STORAGE') ?? process.env.NEXT_PUBLIC_DEFAULT_STORAGE ?? ''
+          if (storage === 'r2') {
+            await handleDownloadR2(keyRef.current, deleteRef.current)
+          } else if (storage === 'mongodb') {
+            await handleDownloadMongodb(keyRef.current, deleteRef.current)
+          } else if (storage === 'file0') {
+            await handleDownloadFile0(keyRef.current, deleteRef.current)
+          } else {
+            alert('系统错误: 未知的存储服务器')
+          }
+        }}
         disabled={isDownloading}
       >
         {buttonContent}

@@ -56,8 +56,9 @@ export default function Config() {
           onChange={e => localStorage.setItem('STORAGE', e.target.value)}
           buttonStyle='solid'
         >
-          <Radio.Button value='r2' className='w-1/2'>Cloudflare R2</Radio.Button>
-          <Radio.Button value='mongodb' className='w-1/2'>MongoDB</Radio.Button>
+          <Radio.Button value='r2' className='w-1/3 text-center'>CloudflareR2</Radio.Button>
+          <Radio.Button value='mongodb' className='w-1/3 text-center'>MongoDB</Radio.Button>
+          <Radio.Button value='file0' className='w-1/3 text-center'>File0</Radio.Button>
         </Radio.Group>
 
         <Button

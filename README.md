@@ -89,3 +89,12 @@ Set `F0_SECRET_KEY` environment variable in `.env` file or `Vercel`.
 | `上传密码` | For authentication, should be the same as the `FILEBOX_UPLOAD_PW` environment variable in the server side |
 | `下载密码` | For authentication, should be the same as the `FILEBOX_DOWNLOAD_PW` environment variable in the server side |
 | `存储服务器` | Storage Server |
+
+## 6 Upload/Dowload Realtime Progress Support
+上传/下载实时进度支持情况
+
+| Storage | Upload | Download |
+| :---: | :---: | :---: |
+| `R2` | ✅ | ✅ |
+| `MongoDB` | ❌ | ❌ |
+| `File0` | ❌ | ✅ |

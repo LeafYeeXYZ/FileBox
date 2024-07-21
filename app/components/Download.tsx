@@ -1,7 +1,7 @@
 'use client'
 import { Input, Button, Switch, Progress } from 'antd'
 import { GiftOutlined, LoadingOutlined } from '@ant-design/icons'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { flushSync } from 'react-dom'
 import { hc } from 'hono/client'
 import { f0 } from 'file0'
@@ -90,7 +90,7 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
         data = [...data, ...downloadData.data]
         end = downloadData.index === downloadData.max
         filename = downloadData.filename
-        flushSync(() => setProgress(+(10 + 90 * (downloadData.index + 1) / (downloadData.max + 1)).toFixed(2)))
+        flushSync(() => setProgress(+(10 + 90 * (downloadData.index + 1) / (downloadData.max + 1))))
       }
       // 关闭 WebSocket
       ws.close()
@@ -202,7 +202,7 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
     }
   }
   const handleDownloadFile0 = async (key: string, shouldDelete: boolean) => {
-    let timer: NodeJS.Timeout | null = null
+
     const password = localStorage.getItem('DOWNLOAD_PW') ?? process.env.NEXT_PUBLIC_DEFAULT_DOWNLOAD_PW ?? ''
 
     try {
@@ -229,11 +229,24 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
       const tokens = await res.json()
       // 下载文件
       flushSync(() => setProgress(10))
-      timer = setInterval(() => {
-        flushSync(() => setProgress(prev => prev >= 97 ? prev : prev + Math.random() * 2))
-      }, 500)
       const filename = await f0.useToken(tokens.keyToken).get({ as: 'text' })
-      const file = await f0.useToken(tokens.fileToken).get({ as: 'blob' })
+      const metadata = await f0.useToken(tokens.fileToken).get({ as: 'metadata' })
+      flushSync(() => setProgress(15))
+      const stream = await f0.useToken(tokens.fileToken).get({ as: 'stream' })
+      const reader = stream!.getReader()
+      let data: number[] = []
+      let end: boolean = false
+      while (!end) {
+        const { value, done } = await reader.read()
+        if (done) {
+          end = true
+          flushSync(() => setProgress(100))
+        } else {
+          data = [...data, ...Array.from(value)]
+          flushSync(() => setProgress(15 + 84 * data.length / metadata!.size))
+        }
+      }
+      const file = new Blob([new Uint8Array(data)])
       if (shouldDelete) {
         await f0.useToken(tokens.keyToken).delete()
         await f0.useToken(tokens.fileToken).delete()
@@ -266,8 +279,6 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
       })
 
     } finally {
-      // 清除定时器
-      if (timer) clearTimeout(timer)
       // 恢复下载状态
       flushSync(() => {
         setButtonContent(download)
@@ -277,6 +288,15 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
     }
   }
 
+  const [storageName, setStorageName] = useState<string>('')
+  useEffect(() => {
+    const storage = localStorage.getItem('STORAGE') ?? process.env.NEXT_PUBLIC_DEFAULT_STORAGE ?? 'r2'
+    if (storage === 'r2') setStorageName('R2')
+    else if (storage === 'mongodb') setStorageName('MongoDB')
+    else if (storage === 'file0') setStorageName('File0')
+    else setStorageName('未知')
+  }, [])
+  
   return (
     <div className='relative w-full h-full'>
 
@@ -285,7 +305,7 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
       </p>
       <Input
         className='mb-2'
-        placeholder='请输入取件码'
+        placeholder={`请输入取件码, 当前存储服务: ${storageName}`}
         onChange={e => {
           keyRef.current = e.target.value
         }}
@@ -304,7 +324,7 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
       <Progress
         className='mb-2 absolute bottom-8 left-0'
         style={{ display: isDownloading ? 'block' : 'none' }}
-        percent={+progress.toFixed(2)}
+        percent={Math.floor(progress)}
         status='active'
         strokeColor={'#ff8080'}
       />

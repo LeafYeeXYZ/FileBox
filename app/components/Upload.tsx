@@ -94,7 +94,7 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
             }
           })
         })
-        flushSync(() => setProgress(+(10 + 90 * (i + 1) / chunks).toFixed(2)))
+        flushSync(() => setProgress(+(10 + 90 * (i + 1) / chunks)))
       }
       // 关闭 WebSocket
       ws.close()
@@ -293,7 +293,7 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
         >
           <p className='ant-upload-text'>点击或拖拽文件到此处</p>
           <p className='ant-upload-hint'>文件需小于 {STORAGES[(localStorage.getItem('STORAGE') ?? process.env.NEXT_PUBLIC_DEFAULT_STORAGE ?? 'r2')].maxUploadSize}</p>
-          <p className='ant-upload-hint'>当前存储方式: {STORAGES[(localStorage.getItem('STORAGE') ?? process.env.NEXT_PUBLIC_DEFAULT_STORAGE ?? 'r2')].displayName}</p>
+          <p className='ant-upload-hint'>当前存储服务: {STORAGES[(localStorage.getItem('STORAGE') ?? process.env.NEXT_PUBLIC_DEFAULT_STORAGE ?? 'r2')].displayName}</p>
         </Up.Dragger>
       </div>
 
@@ -314,7 +314,7 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
       <Progress
         className='mb-2 absolute bottom-8 left-0'
         style={{ display: isUploading ? 'block' : 'none' }}
-        percent={+progress.toFixed(2)}
+        percent={Math.floor(progress)}
         status='active'
         strokeColor={'#ff8080'}
       />

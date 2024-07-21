@@ -8,20 +8,6 @@ export default function Config() {
     <div className='relative w-full h-full'>
 
         <p className='mb-2 ml-1 text-rose-950 text-sm'>
-          <CloudOutlined /> R2 服务器地址
-        </p>
-        <Input
-          className='mb-2'
-          addonBefore='https://'
-          addonAfter='/'
-          defaultValue={
-            localStorage.getItem('SERVER') ?? process.env.NEXT_PUBLIC_DEFAULT_SERVER ?? ''
-          }
-          placeholder='api.xxx.workers.dev'
-          onChange={e => localStorage.setItem('SERVER', e.target.value)}
-        />
-
-        <p className='mb-2 ml-1 text-rose-950 text-sm'>
           <UploadOutlined /> 上传密码
         </p>
         <Input.Password
@@ -56,10 +42,25 @@ export default function Config() {
           onChange={e => localStorage.setItem('STORAGE', e.target.value)}
           buttonStyle='solid'
         >
-          <Radio.Button value='r2' className='w-1/3 text-center'>CloudflareR2</Radio.Button>
-          <Radio.Button value='mongodb' className='w-1/3 text-center'>MongoDB</Radio.Button>
-          <Radio.Button value='file0' className='w-1/3 text-center'>File0</Radio.Button>
+          <Radio.Button value='r2' className='w-1/4 text-center'>R2</Radio.Button>
+          <Radio.Button value='mongodb' className='w-1/4 text-center'>Mongo</Radio.Button>
+          <Radio.Button value='file0' className='w-1/4 text-center'>File0</Radio.Button>
+          <Radio.Button disabled value='vercel' className='w-1/4 text-center'>Vercel</Radio.Button>
         </Radio.Group>
+
+        <p className='mb-2 ml-1 text-rose-950 text-sm'>
+          <CloudOutlined /> R2 服务器地址
+        </p>
+        <Input
+          className='mb-2'
+          addonBefore='https://'
+          addonAfter='/'
+          defaultValue={
+            localStorage.getItem('SERVER') ?? process.env.NEXT_PUBLIC_DEFAULT_SERVER ?? ''
+          }
+          placeholder='api.xxx.workers.dev'
+          onChange={e => localStorage.setItem('SERVER', e.target.value)}
+        />
 
         <Button
           className='absolute bottom-0 left-0 w-full'

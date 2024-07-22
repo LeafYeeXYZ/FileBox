@@ -1,6 +1,7 @@
-**A serverless file delivery web app based on free `Cloudflare R2` / `MongoDB Atlas` / `File0` / `Supabase` databases, using `Next.js`, `WebSockets`, `React`, `Ant Design`, `Tailwind CSS`, `Hono`, etc.**
+# FileBox
+A serverless file delivery web app based on free `Cloudflare R2` / `MongoDB Atlas` / `File0` / `Supabase` databases, using `Next.js`, `WebSockets`, `React`, `Ant Design`, `Tailwind CSS`, `Hono`, etc.
 
-**基于 `Cloudflare R2` / `MongoDB Atlas` / `File0` / `Supabase` 的零成本无服务器文件快递柜, 采用 `Next.js`、`WebSockets`, `React`, `Ant Design`, `Tailwind CSS`, `Hono` 等技术栈.**
+基于 `Cloudflare R2` / `MongoDB Atlas` / `File0` / `Supabase` 的零成本无服务器文件快递柜, 采用 `Next.js`、`WebSockets`, `React`, `Ant Design`, `Tailwind CSS`, `Hono` 等技术栈.
 
 |![](README_1.png)|![](README_2.png)|![](README_3.png)|
 |:---:|:---:|:---:|

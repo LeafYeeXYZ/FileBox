@@ -13,11 +13,24 @@ export async function POST(req: Request) {
     // 连接 MongoDB
     const client = new MongoClient(process.env.MONGODB_URI!)
     const db = client.db('filebox')
-    const coll = db.collection('files')
+    const metaColl = db.collection('meta')
+    const fileColl = db.collection('files')
     // 插入数据
-    await coll.updateOne({ key }, { $set: { key, filename, file } }, { upsert: true })
+    const baes64Length = file.length
+    const chunkSize = 1024 * 1024 * 2
+    const chunkCount = Math.ceil(baes64Length / chunkSize)
+    const chunks = []
+    for (let i = 0; i < chunkCount; i++) {
+      chunks.push(file.slice(i * chunkSize, (i + 1) * chunkSize))
+    }
+    await metaColl.updateOne({ key }, { $set: { key, filename, chunkCount } }, { upsert: true })
+    await fileColl.deleteMany({ key })
+    for (let i = 0; i < chunkCount; i++) {
+      await fileColl.insertOne({ key, index: i, chunk: chunks[i] })
+    }
     // 返回结果
     return new Response('上传成功')
+    
   } catch (error) {
     // 返回错误
     if (error instanceof Error) {

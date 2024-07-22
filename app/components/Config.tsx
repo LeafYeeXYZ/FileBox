@@ -1,6 +1,7 @@
 'use client'
 import { Input, Button, Radio } from 'antd'
 import { CloudOutlined, UploadOutlined, DownloadOutlined, FileOutlined } from '@ant-design/icons'
+import { GetVar } from '../lib/getVar'
 
 export default function Config() {
 
@@ -12,9 +13,7 @@ export default function Config() {
         </p>
         <Input.Password
           className='mb-2'
-          defaultValue={
-            localStorage.getItem('UPLOAD_PW') ?? process.env.NEXT_PUBLIC_DEFAULT_UPLOAD_PW ?? ''
-          }
+          defaultValue={GetVar('UPLOAD_PW')}
           placeholder='请输入上传密码'
           onChange={e => localStorage.setItem('UPLOAD_PW', e.target.value)}
         />
@@ -24,9 +23,7 @@ export default function Config() {
         </p>
         <Input.Password
           className='mb-2'
-          defaultValue={
-            localStorage.getItem('DOWNLOAD_PW') ?? process.env.NEXT_PUBLIC_DEFAULT_DOWNLOAD_PW ?? ''
-          }
+          defaultValue={GetVar('DOWNLOAD_PW')}
           placeholder='请输入下载密码'
           onChange={e => localStorage.setItem('DOWNLOAD_PW', e.target.value)}
         />
@@ -36,9 +33,7 @@ export default function Config() {
         </p>
         <Radio.Group
           className='mb-2 w-full'
-          defaultValue={
-            localStorage.getItem('STORAGE') ?? process.env.NEXT_PUBLIC_DEFAULT_STORAGE ?? 'r2'
-          }
+          defaultValue={GetVar('STORAGE')}
           onChange={e => localStorage.setItem('STORAGE', e.target.value)}
           buttonStyle='solid'
         >
@@ -55,9 +50,7 @@ export default function Config() {
           className='mb-2'
           addonBefore='https://'
           addonAfter='/'
-          defaultValue={
-            localStorage.getItem('SERVER') ?? process.env.NEXT_PUBLIC_DEFAULT_SERVER ?? ''
-          }
+          defaultValue={GetVar('SERVER')}
           placeholder='api.xxx.workers.dev'
           onChange={e => localStorage.setItem('SERVER', e.target.value)}
         />

@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react'
 import { flushSync } from 'react-dom'
 import { hc } from 'hono/client'
 import { f0 } from 'file0'
+import { GetVar } from '../lib/getVar'
 
 type DownloadProps = {
   setDisabled: React.Dispatch<React.SetStateAction<boolean>>
@@ -31,8 +32,8 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
   // 下载事件处理函数
   const handleDownloadR2 = async (key: string, shouldDelete: boolean) => {
 
-    const server = localStorage.getItem('SERVER') ?? process.env.NEXT_PUBLIC_DEFAULT_SERVER ?? ''
-    const password = localStorage.getItem('DOWNLOAD_PW') ?? process.env.NEXT_PUBLIC_DEFAULT_DOWNLOAD_PW ?? ''
+    const server = GetVar('SERVER')
+    const password = GetVar('DOWNLOAD_PW')
 
     try {
       // 设置下载状态
@@ -134,7 +135,7 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
   }
   const handleDownloadMongodb = async (key: string, shouldDelete: boolean) => {
     let timer: NodeJS.Timeout | null = null
-    const password = localStorage.getItem('DOWNLOAD_PW') ?? process.env.NEXT_PUBLIC_DEFAULT_DOWNLOAD_PW ?? ''
+    const password = GetVar('DOWNLOAD_PW')
 
     try {
       // 设置下载状态
@@ -203,7 +204,7 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
   }
   const handleDownloadFile0 = async (key: string, shouldDelete: boolean) => {
 
-    const password = localStorage.getItem('DOWNLOAD_PW') ?? process.env.NEXT_PUBLIC_DEFAULT_DOWNLOAD_PW ?? ''
+    const password = GetVar('DOWNLOAD_PW')
 
     try {
       // 设置下载状态
@@ -290,7 +291,7 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
 
   const [storageName, setStorageName] = useState<string>('')
   useEffect(() => {
-    const storage = localStorage.getItem('STORAGE') ?? process.env.NEXT_PUBLIC_DEFAULT_STORAGE ?? 'r2'
+    const storage = GetVar('STORAGE')
     if (storage === 'r2') setStorageName('R2')
     else if (storage === 'mongodb') setStorageName('MongoDB')
     else if (storage === 'file0') setStorageName('File0')
@@ -332,7 +333,7 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
       <Button
         className='w-full absolute bottom-0 left-0'
         onClick={async () => {
-          const storage = localStorage.getItem('STORAGE') ?? process.env.NEXT_PUBLIC_DEFAULT_STORAGE ?? ''
+          const storage = GetVar('STORAGE')
           if (storage === 'r2') {
             await handleDownloadR2(keyRef.current, deleteRef.current)
           } else if (storage === 'mongodb') {

@@ -52,20 +52,12 @@ Set `MONGODB_URI` environment variables in `.env` file or `Vercel`.
 
 在 `.env` 文件或 `Vercel` 中设置 `MONGODB_URI` 环境变量.
 
-> Due to the limitation of max document size of `MongoDB`, the maximum size of the file that can be uploaded is proximately 10MB when using `MongoDB`. (Sharding will be supported in the future)
-
-> 由于 `MongoDB` 单个文档大小限制, 在使用 `MongoDB` 时, 可上传的文件最大大小也约为 10MB. (未来会支持分片上传)
-
-#### 3.1.3 For File0
-如果使用 `File0`
+#### 3.1.3 For [File0](https://file0.dev/) (Recommended)
+如果使用 [`File0`](https://file0.dev/) (推荐)
 
 Set `F0_SECRET_KEY` environment variable in `.env` file or `Vercel`.
 
 在 `.env` 文件或 `Vercel` 中设置 `F0_SECRET_KEY` 环境变量.
-
-> The free plan of `File0` only has `100MB` storage space, recommend to check the `Delete after download` option in the frontend.
-
-> `File0` 免费计划只有 `100MB` 的存储空间, 推荐在使用时勾选 `下载后删除` 选项.
 
 ### 3.2 Deploy to [Vercel](https://vercel.com/)
 部署到 [Vercel](https://vercel.com/)

@@ -6,6 +6,7 @@ import { flushSync } from 'react-dom'
 import { hc } from 'hono/client'
 import { RcFile } from 'antd/es/upload'
 import { f0 } from 'file0'
+import { GetVar } from '../lib/getVar'
 
 type UploadProps = {
   setDisabled: React.Dispatch<React.SetStateAction<boolean>>
@@ -31,8 +32,8 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
   // 上传事件处理函数
   const handleUploadR2 = async (key: string, file: RcFile | null) => {
 
-    const server = localStorage.getItem('SERVER') ?? process.env.NEXT_PUBLIC_DEFAULT_SERVER ?? ''
-    const uploadPw = localStorage.getItem('UPLOAD_PW') ?? process.env.NEXT_PUBLIC_DEFAULT_UPLOAD_PW ?? ''
+    const server = GetVar('SERVER')
+    const uploadPw = GetVar('UPLOAD_PW')
     const filename = file?.name ?? ''
     
     try {
@@ -128,7 +129,7 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
   }
   const handleUploadMongodb = async (key: string, file: RcFile | null) => {
     let timer: NodeJS.Timeout | null = null
-    const password = localStorage.getItem('UPLOAD_PW') ?? process.env.NEXT_PUBLIC_DEFAULT_UPLOAD_PW ?? ''
+    const password = GetVar('UPLOAD_PW')
     const filename = file?.name ?? ''
 
     try {
@@ -144,7 +145,7 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
       if (!file) throw new Error('请选择文件')
       if (!password) throw new Error('请设置上传密码')
       // 判断文件大小
-      if (file.size > 1024 * 1024 * 10) throw new Error('文件过大')
+      if (file.size > 1024 * 1024 * 50) throw new Error('文件过大')
       // base64 编码
       const reader = new FileReader()
       await new Promise((resolve, reject) => {
@@ -198,7 +199,7 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
   }
   const handleUploadFile0 = async (key: string, file: RcFile | null) => {
     let timer: NodeJS.Timeout | null = null
-    const password = localStorage.getItem('UPLOAD_PW') ?? process.env.NEXT_PUBLIC_DEFAULT_UPLOAD_PW ?? ''
+    const password = GetVar('UPLOAD_PW')
     const filename = file?.name ?? ''
 
     try {
@@ -271,7 +272,7 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
     }
   } = {
     r2: { displayName: 'Cloudflare R2', maxUploadSize: '10MB' },
-    mongodb: { displayName: 'MongoDB', maxUploadSize: '10MB' },
+    mongodb: { displayName: 'MongoDB', maxUploadSize: '50MB' },
     file0: { displayName: 'File0', maxUploadSize: '50MB' },
   }
 
@@ -292,8 +293,8 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
           disabled={isUploading}
         >
           <p className='ant-upload-text'>点击或拖拽文件到此处</p>
-          <p className='ant-upload-hint'>文件需小于 {STORAGES[(localStorage.getItem('STORAGE') ?? process.env.NEXT_PUBLIC_DEFAULT_STORAGE ?? 'r2')].maxUploadSize}</p>
-          <p className='ant-upload-hint'>当前存储服务: {STORAGES[(localStorage.getItem('STORAGE') ?? process.env.NEXT_PUBLIC_DEFAULT_STORAGE ?? 'r2')].displayName}</p>
+          <p className='ant-upload-hint'>文件需小于 {STORAGES[GetVar('STORAGE')].maxUploadSize}</p>
+          <p className='ant-upload-hint'>当前存储服务: {STORAGES[GetVar('STORAGE')].displayName}</p>
         </Up.Dragger>
       </div>
 
@@ -322,7 +323,7 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
       <Button
         className='w-full absolute bottom-0 left-0'
         onClick={async () => {
-          const storage = localStorage.getItem('STORAGE') ?? process.env.NEXT_PUBLIC_DEFAULT_STORAGE ?? 'r2'
+          const storage = GetVar('STORAGE')
           if (storage === 'r2') {
             await handleUploadR2(keyRef.current, file)
           } else if (storage === 'mongodb') {

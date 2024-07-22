@@ -101,7 +101,11 @@ Create a storage bucket named `filebox` and create a table named `filebox` in `S
 
 | Storage | Upload | Download |
 | :---: | :---: | :---: |
-| `R2` | ✅ | ✅ |
-| `MongoDB` | ❌ | ❌ |
-| `File0` | ❌ | ✅ |
+| `R2` | ✅ (By WebSocket) | ✅ (By WebSocket) |
+| `MongoDB` | ✅ (By Multi Part) | ✅ (By Multi Part) |
+| `File0` | ❌ | ✅ (By Native Client Stream Download) |
 | `Supabase` | ❌ | ❌ |
+
+> I tried to implement the download progress by `Fetch API` and `ReadableStream`, but it seems that the data from server still not being handled until its fully downloaded. So I have to use `WebSocket` (for `R2`) or split one request into multiple requests (for `MongoDB`) to get the progress.
+
+> 我尝试过使用 `Fetch API` 和 `ReadableStream` 实现下载进度, 但似乎数据仍是完全下载后才会被处理 (可读流只会在下载结束后触发一次读取). 所以对于 `R2`, 我使用了 `WebSocket` 来获取进度, 对于 `MongoDB`, 我将一个请求拆分为多个请求来获取进度.

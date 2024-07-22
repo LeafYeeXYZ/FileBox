@@ -5,7 +5,7 @@ export async function POST(req: Request) {
     // 获取请求体
     const body = await req.json()
     // 获取数据
-    const { key, password, shouldDelete } = body
+    const { key, password, shouldDelete, chunkIndex } = body
     // 判断密码
     if (password !== (process.env.FILEBOX_DOWNLOAD_PW ?? '')) {
       return new Response('下载密码错误', { status: 403 })
@@ -16,27 +16,26 @@ export async function POST(req: Request) {
     const metaColl = db.collection('meta')
     const fileColl = db.collection('files')
     // 查询数据
-    const meta = await metaColl.findOne({ key })
-    // 判断数据
-    if (!meta) {
-      return new Response('取件码不存在', { status: 404 })
-    }
-    // 查询数据
-    const chunks = []
-    for (let i = 0; i < meta.chunkCount; i++) {
-      const chunk = await fileColl.findOne({ key, index: i })
-      if (!chunk) {
+    let data: any
+    if (+chunkIndex === -1) {
+      data = await metaColl.findOne({ key })
+      if (!data) {
+        return new Response('取件码不存在', { status: 404 })
+      } 
+      if (shouldDelete) {
+        await metaColl.deleteOne({ key })
+      }
+      return new Response(JSON.stringify({ filename: data.filename, file: '', chunkCount: data.chunkCount }))
+    } else {
+      data = await fileColl.findOne({ key, index: +chunkIndex })
+      if (!data) {
         return new Response('文件不存在', { status: 404 })
       }
-      chunks.push(chunk.chunk)
+      if (shouldDelete) {
+        await fileColl.deleteOne({ key, index: +chunkIndex })
+      }
+      return new Response(JSON.stringify({ filename: '', file: data.chunk, chunkCount: 0 }))
     }
-    // 删除数据
-    if (shouldDelete) {
-      await metaColl.deleteOne({ key })
-      await fileColl.deleteMany({ key })
-    }
-    // 返回结果
-    return new Response(JSON.stringify({ filename: meta.filename, file: chunks.join('') }))
   
   } catch (error) {
     // 返回错误

@@ -5,7 +5,7 @@ export async function POST(req: Request) {
     // 获取请求体
     const body = await req.json()
     // 获取数据
-    const { key, filename, file, password } = body
+    const { key, filename, file, password, chunkCount, chunkIndex } = body
     // 判断密码
     if (password !== (process.env.FILEBOX_UPLOAD_PW ?? '')) {
       return new Response('上传密码错误', { status: 403 })
@@ -16,18 +16,12 @@ export async function POST(req: Request) {
     const metaColl = db.collection('meta')
     const fileColl = db.collection('files')
     // 插入数据
-    const baes64Length = file.length
-    const chunkSize = 1024 * 1024 * 2
-    const chunkCount = Math.ceil(baes64Length / chunkSize)
-    const chunks = []
-    for (let i = 0; i < chunkCount; i++) {
-      chunks.push(file.slice(i * chunkSize, (i + 1) * chunkSize))
-    }
-    await metaColl.updateOne({ key }, { $set: { key, filename, chunkCount } }, { upsert: true })
-    await fileColl.deleteMany({ key })
-    for (let i = 0; i < chunkCount; i++) {
-      await fileColl.insertOne({ key, index: i, chunk: chunks[i] })
-    }
+    if (+chunkIndex === -1) {
+      await metaColl.updateOne({ key }, { $set: { key, filename, chunkCount } }, { upsert: true })
+      await fileColl.deleteMany({ key })
+    } else {
+      await fileColl.insertOne({ key, index: +chunkIndex, chunk: file })
+    } 
     // 返回结果
     return new Response('上传成功')
     

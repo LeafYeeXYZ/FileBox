@@ -128,7 +128,6 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
     }
   }
   const handleUploadMongodb = async (key: string, file: RcFile | null) => {
-    let timer: NodeJS.Timeout | null = null
     const password = GetVar('UPLOAD_PW')
     const filename = file?.name ?? ''
 
@@ -154,19 +153,49 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
         reader.readAsDataURL(file)
       })
       const base64 = reader.result as string
-      // 发送上传请求
+      const base64Length = base64.length
+      const chunkSize = 1024 * 1024 * 2
+      const chunkCount = Math.ceil(base64Length / chunkSize)
+      const chunks = []
+      for (let i = 0; i < chunkCount; i++) {
+        chunks.push(base64.slice(i * chunkSize, (i + 1) * chunkSize))
+      }
+      // 发送上传请求 (meta)
       flushSync(() => setProgress(5))
-      timer = setInterval(() => {
-        flushSync(() => setProgress(prev => prev >= 97 ? prev : prev + Math.random() * 2))
-      }, 500)
       const res = await fetch('/api/mongodb/upload', {
         method: 'POST',
-        body: JSON.stringify({ key, filename, file: base64, password }),
+        body: JSON.stringify({ key, filename, file: '', password, chunkCount, chunkIndex: -1 }),
       })
       if (res.status !== 200) {
         const error = await res.text()
         throw new Error(error)
       }
+      // 发送上传请求 (file)
+      flushSync(() => setProgress(10))
+      for (let i = 0; i < chunkCount; i++) {
+        let res: Response
+        try {
+          res = await fetch('/api/mongodb/upload', {
+            method: 'POST',
+            body: JSON.stringify({ key, filename, file: chunks[i], password, chunkCount, chunkIndex: i }),
+          })
+          if (res.status !== 200) {
+            const error = await res.text()
+            throw new Error(error)
+          }
+        } catch (error) {
+          res = await fetch('/api/mongodb/upload', {
+            method: 'POST',
+            body: JSON.stringify({ key, filename, file: chunks[i], password, chunkCount, chunkIndex: i }),
+          })
+          if (res.status !== 200) {
+            const error = await res.text()
+            throw new Error(error)
+          }
+        }
+        flushSync(() => setProgress(+(10 + 89 * (i + 1) / chunkCount)))
+      }
+      flushSync(() => setProgress(100))
       // 弹窗提示
       flushSync(() => {
         setModelTitle('上传成功')
@@ -187,8 +216,6 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
       })
 
     } finally {
-      // 清除定时器
-      if (timer) clearInterval(timer)
       // 恢复上传状态
       flushSync(() => {
         setDisabled(false)

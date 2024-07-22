@@ -134,7 +134,6 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
     }
   }
   const handleDownloadMongodb = async (key: string, shouldDelete: boolean) => {
-    let timer: NodeJS.Timeout | null = null
     const password = GetVar('DOWNLOAD_PW')
 
     try {
@@ -148,26 +147,54 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
       // 判断信息
       if (!key) throw new Error('请输入取件码')
       if (!password) throw new Error('请设置下载密码')
-      // 发送下载请求
+      // 发送下载请求 (meta)
       flushSync(() => setProgress(5))
-      timer = setInterval(() => {
-        flushSync(() => setProgress(prev => prev >= 97 ? prev : prev + Math.random() * 2))
-      }, 500)
       const res = await fetch('/api/mongodb/download', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ key, password, shouldDelete })
+        body: JSON.stringify({ key, password, shouldDelete, chunkIndex: -1 })
       })
       if (res.status !== 200) {
         const error = await res.text()
         throw new Error(error)
       }
-      const data = await res.json() 
+      const { filename, chunkCount }: {
+        filename: string
+        chunkCount: string
+      } = await res.json() 
+      const data: string[] = []
+      // 发送下载请求 (file)
+      flushSync(() => setProgress(10))
+      for (let i = 0; i < +chunkCount; i++) {
+        let res: Response
+        try {
+          res = await fetch('/api/mongodb/download', {
+            method: 'POST',
+            body: JSON.stringify({ key, password, shouldDelete, chunkIndex: i })
+          })
+          if (res.status !== 200) {
+            const error = await res.text()
+            throw new Error(error)
+          }
+        } catch (error) {
+          res = await fetch('/api/mongodb/download', {
+            method: 'POST',
+            body: JSON.stringify({ key, password, shouldDelete, chunkIndex: i })
+          })
+          if (res.status !== 200) {
+            const error = await res.text()
+            throw new Error(error)
+          }
+        }
+        const { file } = await res.json()
+        data.push(file)
+        flushSync(() => setProgress(10 + 89 * (i + 1) / +chunkCount))
+      }
       // 下载文件
-      const file = data.file
-      const filename = data.filename
+      flushSync(() => setProgress(100))
+      const file = data.join('')
       const a = document.createElement('a')
       a.href = file
       a.download = filename
@@ -192,8 +219,6 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
       })
 
     } finally {
-      // 清除定时器
-      if (timer) clearTimeout(timer)
       // 恢复下载状态
       flushSync(() => {
         setButtonContent(download)

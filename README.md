@@ -72,15 +72,15 @@ Set `F0_SECRET_KEY` environment variable in `.env` file or `Vercel`.
 | `NEXT_PUBLIC_DEFAULT_SERVER` | Client Default R2 Server | - | No |
 | `NEXT_PUBLIC_DEFAULT_UPLOAD_PW` | Client Default Upload Password | - | No |
 | `NEXT_PUBLIC_DEFAULT_DOWNLOAD_PW` | Client Default Download Password | - | No |
-| `NEXT_PUBLIC_DEFAULT_STORAGE` | Client Default Storage Server<br>`r2` / `mongodb` / `file0` | `r2` | No |
+| `NEXT_PUBLIC_DEFAULT_STORAGE` | Client Default Storage Server<br>`r2` / `mongodb` / `file0` | `file0` | No |
 
 ## 5 Frontend Config
 | Name | Description |
 | :---: | :---: |
-| `R2 服务器地址` | See [3.1.1](#311-for-cloudflare-r2) |
 | `上传密码` | For authentication, should be the same as the `FILEBOX_UPLOAD_PW` environment variable in the server side |
 | `下载密码` | For authentication, should be the same as the `FILEBOX_DOWNLOAD_PW` environment variable in the server side |
-| `存储服务器` | Storage Server |
+| `存储服务器` | Choose storage server |
+| `R2 服务器地址` | See [3.1.1](#311-for-cloudflare-r2) |
 
 ## 6 Upload/Dowload Realtime Progress Support
 上传/下载实时进度支持情况

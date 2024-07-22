@@ -1,5 +1,8 @@
+'use client'
 export function GetVar(name: string) {
-  'use client'
+  if (typeof window === 'undefined') {
+    return 'This function is only available on the client side'
+  }
   return localStorage.getItem(name) ?? process.env[varDefine[name].envKey] ?? varDefine[name].defaultValue
 }
 

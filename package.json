@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@ant-design/icons": "^5.3.7",
+    "@supabase/supabase-js": "^2.44.4",
     "antd": "^5.19.3",
     "file0": "^2.0.3",
     "hono": "^4.5.0",

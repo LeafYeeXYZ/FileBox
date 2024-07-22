@@ -1,6 +1,6 @@
-**基于 `Cloudflare R2` / `MongoDB Atlas` / `File0` 的零成本无服务器文件快递柜, 采用 `Next.js`、`WebSockets`, `React`, `Ant Design`, `Tailwind CSS`, `Hono` 等技术栈.**
+**A serverless file delivery web app based on free `Cloudflare R2` / `MongoDB Atlas` / `File0` / `Supabase` databases, using `Next.js`, `WebSockets`, `React`, `Ant Design`, `Tailwind CSS`, `Hono`, etc.**
 
-**A serverless file delivery web app based on free `Cloudflare R2` / `MongoDB Atlas` / `File0` databases, using `Next.js`, `WebSockets`, `React`, `Ant Design`, `Tailwind CSS`, `Hono`, etc.**
+**基于 `Cloudflare R2` / `MongoDB Atlas` / `File0` / `Supabase` 的零成本无服务器文件快递柜, 采用 `Next.js`、`WebSockets`, `React`, `Ant Design`, `Tailwind CSS`, `Hono` 等技术栈.**
 
 |![](README_1.png)|![](README_2.png)|![](README_3.png)|
 |:---:|:---:|:---:|
@@ -59,6 +59,17 @@ Set `F0_SECRET_KEY` environment variable in `.env` file or `Vercel`.
 
 在 `.env` 文件或 `Vercel` 中设置 `F0_SECRET_KEY` 环境变量.
 
+#### 3.1.4 For [Supabase](https://supabase.io/)
+如果使用 [`Supabase`](https://supabase.io/)
+
+Set `SUPABASE_URL` and `SUPABASE_KEY` environment variables in `.env` file or `Vercel`.
+
+在 `.env` 文件或 `Vercel` 中设置 `SUPABASE_URL` 和 `SUPABASE_KEY` 环境变量.
+
+Create a storage bucket named `filebox` and create a table named `filebox` in `Supabase` dashboard. The table should have the following columns: key (text), filename (text), created_at (timestamp).
+
+在 `Supabase` 控制台中创建一个名为 `filebox` 的存储桶, 并创建一个名为 `filebox` 的表. 表应该有以下列: key (text), filename (text), created_at (timestamp).
+
 ### 3.2 Deploy to [Vercel](https://vercel.com/)
 部署到 [Vercel](https://vercel.com/)
 
@@ -69,10 +80,12 @@ Set `F0_SECRET_KEY` environment variable in `.env` file or `Vercel`.
 | `FILEBOX_DOWNLOAD_PW` | Download Password | - | Yes |
 | `MONGODB_URI` | MongoDB Connection URI | - | No |
 | `F0_SECRET_KEY` | File0 Secret Key | - | No |
+| `SUPABASE_URL` | Supabase URL | - | No |
+| `SUPABASE_KEY` | Supabase SECRET api key<br>Or `anon` api key with additional permission | - | No |
 | `NEXT_PUBLIC_DEFAULT_SERVER` | Client Default R2 Server | - | No |
 | `NEXT_PUBLIC_DEFAULT_UPLOAD_PW` | Client Default Upload Password | - | No |
 | `NEXT_PUBLIC_DEFAULT_DOWNLOAD_PW` | Client Default Download Password | - | No |
-| `NEXT_PUBLIC_DEFAULT_STORAGE` | Client Default Storage Server<br>`r2` / `mongodb` / `file0` | `file0` | No |
+| `NEXT_PUBLIC_DEFAULT_STORAGE` | Client Default Storage Server<br>`r2` / `mongodb` / `file0` / `supabase` | `file0` | No |
 
 ## 5 Frontend Config
 | Name | Description |
@@ -80,7 +93,7 @@ Set `F0_SECRET_KEY` environment variable in `.env` file or `Vercel`.
 | `上传密码` | For authentication, should be the same as the `FILEBOX_UPLOAD_PW` environment variable in the server side |
 | `下载密码` | For authentication, should be the same as the `FILEBOX_DOWNLOAD_PW` environment variable in the server side |
 | `存储服务器` | Choose storage server |
-| `R2 服务器地址` | See [3.1.1](#311-for-cloudflare-r2) |
+| `R2 服务器地址` | See [3.1.1](#311-for-cloudflare-r2), only appears when `R2` is selected |
 
 ## 6 Upload/Dowload Realtime Progress Support
 上传/下载实时进度支持情况
@@ -90,3 +103,4 @@ Set `F0_SECRET_KEY` environment variable in `.env` file or `Vercel`.
 | `R2` | ✅ | ✅ |
 | `MongoDB` | ❌ | ❌ |
 | `File0` | ❌ | ✅ |
+| `Supabase` | ❌ | ❌ |

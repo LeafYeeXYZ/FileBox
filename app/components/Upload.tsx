@@ -264,6 +264,76 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
       })
     }
   }
+  const handleUploadSupabase = async (key: string, file: RcFile | null) => {
+    let timer: NodeJS.Timeout | null = null
+    const password = GetVar('UPLOAD_PW')
+    const filename = file?.name ?? ''
+
+    try {
+      // 设置上传状态
+      flushSync(() => {
+        setButtonContent(uploading)
+        setDisabled(true)
+        setIsUploading(true)
+        setProgress(0)
+      })
+      // 判断信息
+      if (!key) throw new Error('请输入取件码')
+      if (!file) throw new Error('请选择文件')
+      if (!password) throw new Error('请设置上传密码')
+      // 判断文件大小
+      if (file.size > 1024 * 1024 * 50) throw new Error('文件过大')
+      // base64 编码
+      const reader = new FileReader()
+      await new Promise((resolve, reject) => {
+        reader.onload = () => resolve(null)
+        reader.onerror = error => reject(error)
+        reader.readAsDataURL(file)
+      })
+      const base64 = reader.result as string
+      // 发送上传请求
+      flushSync(() => setProgress(5))
+      timer = setInterval(() => {
+        flushSync(() => setProgress(prev => prev >= 97 ? prev : prev + Math.random() * 2))
+      }, 500)
+      const res = await fetch('/api/supabase/upload', {
+        method: 'POST',
+        body: JSON.stringify({ key, filename, file: base64, password }),
+      })
+      if (res.status !== 200) {
+        const error = await res.text()
+        throw new Error(error)
+      }
+      // 弹窗提示
+      flushSync(() => {
+        setModelTitle('上传成功')
+        setModelContent(<span>取件码：{key}</span>)
+        setIsModelOpen(true)
+      })
+
+    } catch (error) {
+      // 弹窗提示
+      flushSync(() => {
+        setModelTitle('上传失败')
+        if (error instanceof Error) {
+          setModelContent(<span>{error.message}</span>)
+        } else {
+          setModelContent(<span>{JSON.stringify(error)}</span>)
+        }
+        setIsModelOpen(true)
+      })
+
+    } finally {
+      // 清除定时器
+      if (timer) clearInterval(timer)
+      // 恢复上传状态
+      flushSync(() => {
+        setDisabled(false)
+        setIsUploading(false)
+        setButtonContent(upload)
+      })
+    }
+  }
 
   const STORAGES: {
     [key: string]: {
@@ -274,6 +344,7 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
     r2: { displayName: 'Cloudflare R2', maxUploadSize: '10MB' },
     mongodb: { displayName: 'MongoDB', maxUploadSize: '50MB' },
     file0: { displayName: 'File0', maxUploadSize: '50MB' },
+    supabase: { displayName: 'Supabase', maxUploadSize: '50MB' },
   }
 
   return (
@@ -330,6 +401,8 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
             await handleUploadMongodb(keyRef.current, file)
           } else if (storage === 'file0') {
             await handleUploadFile0(keyRef.current, file)
+          } else if (storage === 'supabase') {
+            await handleUploadSupabase(keyRef.current, file)
           } else {
             alert('系统错误: 未知的存储服务器')
           }

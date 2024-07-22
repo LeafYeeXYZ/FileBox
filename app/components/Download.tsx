@@ -288,14 +288,92 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
       })
     }
   }
+  const handleDownloadSupabase = async (key: string, shouldDelete: boolean) => {
+    let timer: NodeJS.Timeout | null = null
+    const password = GetVar('DOWNLOAD_PW')
 
-  const [storageName, setStorageName] = useState<string>('')
+    try {
+      // 设置下载状态
+      flushSync(() => {
+        setButtonContent(downloading)
+        setDisabled(true)
+        setIsDownloading(true)
+        setProgress(0)
+      })
+      // 判断信息
+      if (!key) throw new Error('请输入取件码')
+      if (!password) throw new Error('请设置下载密码')
+      // 发送下载请求
+      flushSync(() => setProgress(5))
+      timer = setInterval(() => {
+        flushSync(() => setProgress(prev => prev >= 97 ? prev : prev + Math.random() * 2))
+      }, 500)
+      const res = await fetch('/api/supabase/download', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ key, password, shouldDelete })
+      })
+      if (res.status !== 200) {
+        const error = await res.text()
+        throw new Error(error)
+      }
+      const data = await res.json() 
+      // 下载文件
+      const file = data.file
+      const filename = data.filename
+      const a = document.createElement('a')
+      a.href = file
+      a.download = filename
+      a.click()
+      // 弹窗提示
+      flushSync(() => {
+        setModelTitle('下载成功')
+        setModelContent(<span>如果浏览器未自动弹出下载，请<a href={file} download={filename}>点击此处下载</a></span>)
+        setIsModelOpen(true)
+      })
+
+    } catch (error) {
+      // 弹窗提示
+      flushSync(() => {
+        setModelTitle('下载失败')
+        if (error instanceof Error) {
+          setModelContent(<span>{error.message}</span>)
+        } else {
+          setModelContent(<span>{JSON.stringify(error)}</span>)
+        }
+        setIsModelOpen(true)
+      })
+
+    } finally {
+      // 清除定时器
+      if (timer) clearTimeout(timer)
+      // 恢复下载状态
+      flushSync(() => {
+        setButtonContent(download)
+        setDisabled(false)
+        setIsDownloading(false)
+      })
+    }
+  }
+
+  const STORAGES: {
+    [key: string]: {
+      displayName: string
+      maxUploadSize: string
+    }
+  } = {
+    r2: { displayName: 'Cloudflare R2', maxUploadSize: '10MB' },
+    mongodb: { displayName: 'MongoDB', maxUploadSize: '50MB' },
+    file0: { displayName: 'File0', maxUploadSize: '50MB' },
+    supabase: { displayName: 'Supabase', maxUploadSize: '50MB' },
+  }
+  // 解决 Next.js 的错误优化，无奈使用 state
+  // 太无语了，Upload 组件同样的逻辑就不会报错
+  const [displayName, setDisplayName] = useState<string>('')
   useEffect(() => {
-    const storage = GetVar('STORAGE')
-    if (storage === 'r2') setStorageName('R2')
-    else if (storage === 'mongodb') setStorageName('MongoDB')
-    else if (storage === 'file0') setStorageName('File0')
-    else setStorageName('未知')
+    setDisplayName(STORAGES[GetVar('STORAGE')].displayName)
   }, [])
   
   return (
@@ -306,7 +384,7 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
       </p>
       <Input
         className='mb-2'
-        placeholder={`请输入取件码, 当前存储服务: ${storageName}`}
+        placeholder={`请输入取件码, 当前存储服务: ${displayName}`}
         onChange={e => {
           keyRef.current = e.target.value
         }}
@@ -340,6 +418,8 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
             await handleDownloadMongodb(keyRef.current, deleteRef.current)
           } else if (storage === 'file0') {
             await handleDownloadFile0(keyRef.current, deleteRef.current)
+          } else if (storage === 'supabase') {
+            await handleDownloadSupabase(keyRef.current, deleteRef.current)
           } else {
             alert('系统错误: 未知的存储服务器')
           }

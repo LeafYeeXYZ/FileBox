@@ -2,8 +2,11 @@
 import { Input, Button, Radio } from 'antd'
 import { CloudOutlined, UploadOutlined, DownloadOutlined, FileOutlined } from '@ant-design/icons'
 import { GetVar } from '../lib/getVar'
+import { useState } from 'react'
 
 export default function Config() {
+
+  const [appear, setAppear] = useState(GetVar('STORAGE') === 'r2')
 
   return (
     <div className='relative w-full h-full'>
@@ -34,19 +37,30 @@ export default function Config() {
         <Radio.Group
           className='mb-2 w-full'
           defaultValue={GetVar('STORAGE')}
-          onChange={e => localStorage.setItem('STORAGE', e.target.value)}
+          onChange={e => {
+            localStorage.setItem('STORAGE', e.target.value)
+            if (e.target.value === 'r2') {
+              setAppear(true)
+            } else {
+              setAppear(false)
+            }
+          }}
           buttonStyle='solid'
         >
-          <Radio.Button value='r2' className='w-1/4 text-center'>R2</Radio.Button>
-          <Radio.Button value='mongodb' className='w-1/4 text-center'>Mongo</Radio.Button>
-          <Radio.Button value='file0' className='w-1/4 text-center'>File0</Radio.Button>
-          <Radio.Button disabled value='vercel' className='w-1/4 text-center'>Vercel</Radio.Button>
+          <Radio.Button value='r2' className='w-1/4'><span className='inline-flex justify-center items-center text-xs w-full h-full'>R2</span></Radio.Button>
+          <Radio.Button value='mongodb' className='w-1/4 text-center'><span className='inline-flex justify-center items-center text-xs w-full h-full'>MongoDB</span></Radio.Button>
+          <Radio.Button value='file0' className='w-1/4 text-center'><span className='inline-flex justify-center items-center text-xs w-full h-full'>File0</span></Radio.Button>
+          <Radio.Button value='supabase' className='w-1/4 text-center'><span className='inline-flex justify-center items-center text-xs w-full h-full'>Supabase</span></Radio.Button>
         </Radio.Group>
 
-        <p className='mb-2 ml-1 text-rose-950 text-sm'>
+        <p 
+          className='mb-2 ml-1 text-rose-950 text-sm'
+          style={{ display: appear ? 'block' : 'none' }}
+        >
           <CloudOutlined /> R2 服务器地址
         </p>
         <Input
+          style={{ display: appear ? 'block' : 'none' }}
           className='mb-2'
           addonBefore='https://'
           addonAfter='/'

@@ -5,15 +5,7 @@ export async function POST(req: Request) {
     // 获取请求体
     const body = await req.json()
     // 获取数据
-    let { key, filename, file, password } = body
-    // 把 base64 转为 blob
-    const base64 = file.split(',')[1]
-    const binary = atob(base64)
-    const array = new Uint8Array(binary.length)
-    for (let i = 0; i < binary.length; i++) {
-      array[i] = binary.charCodeAt(i)
-    }
-    file = new Blob([array])
+    let { key, filename, password } = body
     // 判断密码
     if (password !== (process.env.FILEBOX_UPLOAD_PW ?? '')) {
       return new Response('上传密码错误', { status: 403 })
@@ -21,7 +13,7 @@ export async function POST(req: Request) {
     // 创建客户端
     const supabase = createClient(process.env.SUPABASE_URL ?? '', process.env.SUPABASE_KEY ?? '')
     // 上传文件
-    let re: { error: any } = { error: null }
+    let re: { error: any, data: any } = { error: null, data: null }
     re = await supabase
       .from('filebox')
       .upsert({ key, filename })
@@ -32,12 +24,12 @@ export async function POST(req: Request) {
     re = await supabase
       .storage
       .from('filebox')
-      .upload(key, file, { upsert: true })
+      .createSignedUploadUrl(key, { upsert: true })
     if (re.error) {
       throw new Error(JSON.stringify(re.error))
     }
     // 返回成功
-    return new Response('上传成功', { status: 200 })
+    return new Response(JSON.stringify({ signedUrl: re.data.signedUrl }), { status: 200 })
     
   } catch (error) {
     // 返回错误

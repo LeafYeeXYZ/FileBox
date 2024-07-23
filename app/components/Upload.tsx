@@ -310,25 +310,31 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
       if (!password) throw new Error('请设置上传密码')
       // 判断文件大小
       if (file.size > 1024 * 1024 * 50) throw new Error('文件过大')
-      // base64 编码
-      const reader = new FileReader()
-      await new Promise((resolve, reject) => {
-        reader.onload = () => resolve(null)
-        reader.onerror = error => reject(error)
-        reader.readAsDataURL(file)
-      })
-      const base64 = reader.result as string
+      // 文件转为 blob
+      const data = await file.arrayBuffer()
+      const blob = new Blob([new Uint8Array(data)])
       // 发送上传请求
       flushSync(() => setProgress(5))
-      timer = setInterval(() => {
-        flushSync(() => setProgress(prev => prev >= 97 ? prev : prev + Math.random() * 2))
-      }, 500)
       const res = await fetch('/api/supabase/upload', {
         method: 'POST',
-        body: JSON.stringify({ key, filename, file: base64, password }),
+        body: JSON.stringify({ key, filename, password }),
       })
       if (res.status !== 200) {
         const error = await res.text()
+        throw new Error(error)
+      }
+      const { signedUrl } = await res.json()
+      // 上传文件
+      flushSync(() => setProgress(10))
+      timer = setInterval(() => {
+        flushSync(() => setProgress(prev => prev >= 97 ? prev : prev + Math.random() * 2))
+      }, 500)
+      const uploadRes = await fetch(signedUrl, {
+        method: 'PUT',
+        body: blob,
+      })
+      if (!uploadRes.ok) {
+        const error = await uploadRes.text()
         throw new Error(error)
       }
       // 弹窗提示

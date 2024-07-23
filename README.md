@@ -35,8 +35,8 @@ Above all, you should set `FILEBOX_UPLOAD_PW`, `FILEBOX_DOWNLOAD_PW` environment
 
 不管使用哪种存储方案, 你都需要在 `.env` 文件或 `Vercel` 中设置 `FILEBOX_UPLOAD_PW`, `FILEBOX_DOWNLOAD_PW` 环境变量.
 
-#### 3.1.1 For Cloudflare R2
-如果使用 `R2`
+#### 3.1.1 For Cloudflare R2 (Not Recommended)
+如果使用 `R2` (不推荐)
 
 See [this project](https://github.com/LeafYeeXYZ/MyAPIs).
 
@@ -60,8 +60,8 @@ Set `F0_SECRET_KEY` environment variable in `.env` file or `Vercel`.
 
 在 `.env` 文件或 `Vercel` 中设置 `F0_SECRET_KEY` 环境变量.
 
-#### 3.1.4 For [Supabase](https://supabase.io/)
-如果使用 [`Supabase`](https://supabase.io/)
+#### 3.1.4 For [Supabase](https://supabase.io/) (Recommended)
+如果使用 [`Supabase`](https://supabase.io/) (推荐)
 
 Set `SUPABASE_URL` and `SUPABASE_KEY` environment variables in `.env` file or `Vercel`.
 
@@ -102,10 +102,6 @@ Create a storage bucket named `filebox` and create a table named `filebox` in `S
 | Storage | Upload | Download |
 | :---: | :---: | :---: |
 | `R2` | ✅ (By WebSocket) | ✅ (By WebSocket) |
-| `MongoDB` | ✅ (By Multi Part) | ✅ (By Multi Part) |
-| `File0` | ❌ (Client Upload with token) | ✅ (By Native Client Stream Download) |
-| `Supabase` | ❌ (Client Upload with token) | ✅ (By Public Download URL) |
-
-> I tried to implement the download progress by `Fetch API` and `ReadableStream`, but it seems that the data from server still not being handled until its fully downloaded. So I have to use `WebSocket` (for `R2`) or split one request into multiple requests (for `MongoDB`) to get the progress.
-
-> 我尝试过使用 `Fetch API` 和 `ReadableStream` 实现下载进度, 但似乎数据仍是完全下载后才会被处理 (可读流只会在下载结束后快速触发数次读取). 所以对于 `R2`, 我使用了 `WebSocket` 来获取进度, 对于 `MongoDB`, 我将一个请求拆分为多个请求来获取进度.
+| `MongoDB` | ✅ (Split File into Chunks) | ✅ (Fetch & Stream API) |
+| `File0` | ❌ (SDK's Upload API) | ✅ (SDK's Download as Stream) |
+| `Supabase` | ✅ (XHR's onUploadProgress Event) | ✅ (Public Direct Download Link) |

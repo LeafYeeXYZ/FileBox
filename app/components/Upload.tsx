@@ -292,7 +292,6 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
     }
   }
   const handleUploadSupabase = async (key: string, file: RcFile | null) => {
-    let timer: NodeJS.Timeout | null = null
     const password = GetVar('UPLOAD_PW')
     const filename = file?.name ?? ''
 
@@ -326,17 +325,18 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
       const { signedUrl } = await res.json()
       // 上传文件
       flushSync(() => setProgress(10))
-      timer = setInterval(() => {
-        flushSync(() => setProgress(prev => prev >= 97 ? prev : prev + Math.random() * 2))
-      }, 500)
-      const uploadRes = await fetch(signedUrl, {
-        method: 'PUT',
-        body: blob,
-      })
-      if (!uploadRes.ok) {
-        const error = await uploadRes.text()
-        throw new Error(error)
+      // 通过 xhr 的 onprogress 事件监听上传进度
+      const xhr = new XMLHttpRequest()
+      xhr.open('PUT', signedUrl)
+      xhr.upload.onprogress = event => {
+        flushSync(() => setProgress(+(10 + 89 * event.loaded / event.total)))
       }
+      xhr.send(blob)
+      await new Promise((resolve, reject) => {
+        xhr.onload = () => resolve(null)
+        xhr.onerror = error => reject(error)
+      })
+      flushSync(() => setProgress(100))
       // 弹窗提示
       flushSync(() => {
         setModelTitle('上传成功')
@@ -357,8 +357,6 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
       })
 
     } finally {
-      // 清除定时器
-      if (timer) clearInterval(timer)
       // 恢复上传状态
       flushSync(() => {
         setDisabled(false)

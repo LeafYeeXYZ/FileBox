@@ -104,7 +104,7 @@ Create a storage bucket named `filebox` and create a table named `filebox` in `S
 | `R2` | ✅ (By WebSocket) | ✅ (By WebSocket) |
 | `MongoDB` | ✅ (By Multi Part) | ✅ (By Multi Part) |
 | `File0` | ❌ | ✅ (By Native Client Stream Download) |
-| `Supabase` | ❌ | ❌ |
+| `Supabase` | ❌ | ✅ (By Public Download URL) |
 
 > I tried to implement the download progress by `Fetch API` and `ReadableStream`, but it seems that the data from server still not being handled until its fully downloaded. So I have to use `WebSocket` (for `R2`) or split one request into multiple requests (for `MongoDB`) to get the progress.
 

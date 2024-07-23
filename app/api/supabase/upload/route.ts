@@ -1,11 +1,19 @@
-import { createClient, PostgrestError } from '@supabase/supabase-js'
+import { createClient } from '@supabase/supabase-js'
 
 export async function POST(req: Request) {
   try {
     // 获取请求体
     const body = await req.json()
     // 获取数据
-    const { key, filename, file, password } = body
+    let { key, filename, file, password } = body
+    // 把 base64 转为 blob
+    const base64 = file.split(',')[1]
+    const binary = atob(base64)
+    const array = new Uint8Array(binary.length)
+    for (let i = 0; i < binary.length; i++) {
+      array[i] = binary.charCodeAt(i)
+    }
+    file = new Blob([array])
     // 判断密码
     if (password !== (process.env.FILEBOX_UPLOAD_PW ?? '')) {
       return new Response('上传密码错误', { status: 403 })

@@ -32,18 +32,25 @@ export async function POST(req: Request) {
     re = await supabase
       .storage
       .from('filebox')
-      .download(key)
+      .remove(['_temp_file'])
     if (re.error) {
       throw new Error(JSON.stringify(re.error))
     }
-    if (re.data === null) {
-      await supabase
-        .from('filebox')
-        .delete()
-        .eq('key', key)
-      return new Response('文件不存在', { status: 404 })
+    re = await supabase
+      .storage
+      .from('filebox')
+      .copy(key, '_temp_file')
+    if (re.error) {
+      throw new Error(JSON.stringify(re.error))
     }
-    file = await re.data.text()
+    re = await supabase
+      .storage
+      .from('filebox')
+      .createSignedUrl('_temp_file', 60 * 5, { download: filename })
+    if (re.error) {
+      throw new Error(JSON.stringify(re.error))
+    }
+    file = re.data.signedUrl
     // 删除数据
     if (shouldDelete) {
       re = await supabase
@@ -62,7 +69,7 @@ export async function POST(req: Request) {
       }
     }
     // 返回结果
-    return new Response(JSON.stringify({ filename, file }))
+    return new Response(JSON.stringify({ file }))
 
   } catch (error) {
     // 返回错误

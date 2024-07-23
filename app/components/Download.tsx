@@ -314,7 +314,6 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
     }
   }
   const handleDownloadSupabase = async (key: string, shouldDelete: boolean) => {
-    let timer: NodeJS.Timeout | null = null
     const password = GetVar('DOWNLOAD_PW')
 
     try {
@@ -329,10 +328,7 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
       if (!key) throw new Error('请输入取件码')
       if (!password) throw new Error('请设置下载密码')
       // 发送下载请求
-      flushSync(() => setProgress(5))
-      timer = setInterval(() => {
-        flushSync(() => setProgress(prev => prev >= 97 ? prev : prev + Math.random() * 2))
-      }, 500)
+      flushSync(() => setProgress(10))
       const res = await fetch('/api/supabase/download', {
         method: 'POST',
         headers: {
@@ -344,18 +340,18 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
         const error = await res.text()
         throw new Error(error)
       }
+      flushSync(() => setProgress(50))
       const data = await res.json() 
       // 下载文件
       const file = data.file
-      const filename = data.filename
       const a = document.createElement('a')
       a.href = file
-      a.download = filename
+      a.target = '_blank'
       a.click()
       // 弹窗提示
       flushSync(() => {
         setModelTitle('下载成功')
-        setModelContent(<span>如果浏览器未自动弹出下载，请<a href={file} download={filename}>点击此处下载</a></span>)
+        setModelContent(<span>如果浏览器未自动弹出下载，请<a href={file} target='_blank'>点击此处下载</a> (链接 5 分钟内有效)</span>)
         setIsModelOpen(true)
       })
 
@@ -372,8 +368,6 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
       })
 
     } finally {
-      // 清除定时器
-      if (timer) clearTimeout(timer)
       // 恢复下载状态
       flushSync(() => {
         setButtonContent(download)

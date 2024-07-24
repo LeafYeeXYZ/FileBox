@@ -75,16 +75,22 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
         file += decoder.decode(value)
         flushSync(() => setProgress(10 + 89 * file.length / filesize))
       }
-      // 下载文件
+      // 下载文件, base64 转 blob
       flushSync(() => setProgress(100))
+      const data = file.split(',')[1]
+      const blob = new Blob([new Uint8Array(atob(data).split('').map(c => c.charCodeAt(0)))])
+      const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
-      a.href = file
+      a.href = url
       a.download = filename
       a.click()
+      setTimeout(() => {
+        URL.revokeObjectURL(url)
+      }, 5 * 60 * 1000)
       // 弹窗提示
       flushSync(() => {
         setModelTitle('下载成功')
-        setModelContent(<span>如果浏览器未自动弹出下载，请<a href={file} download={filename}>点击此处下载</a></span>)
+        setModelContent(<span>如果浏览器未自动弹出下载，请<a href={url} download={filename}>点击此处下载</a> (链接 5 分钟内有效)</span>)
         setIsModelOpen(true)
       })
 
@@ -147,16 +153,22 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
         file += decoder.decode(value)
         flushSync(() => setProgress(10 + 89 * file.length / filesize))
       }
-      // 下载文件
+      // 下载文件, base64 转 blob
       flushSync(() => setProgress(100))
+      const data = file.split(',')[1]
+      const blob = new Blob([new Uint8Array(atob(data).split('').map(c => c.charCodeAt(0)))])
+      const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
-      a.href = file
+      a.href = url
       a.download = filename
       a.click()
+      setTimeout(() => {
+        URL.revokeObjectURL(url)
+      }, 5 * 60 * 1000)
       // 弹窗提示
       flushSync(() => {
         setModelTitle('下载成功')
-        setModelContent(<span>如果浏览器未自动弹出下载，请<a href={file} download={filename}>点击此处下载</a></span>)
+        setModelContent(<span>如果浏览器未自动弹出下载，请<a href={url} download={filename}>点击此处下载</a> (链接 5 分钟内有效)</span>)
         setIsModelOpen(true)
       })
 

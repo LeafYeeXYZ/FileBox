@@ -12,7 +12,7 @@ export default function Modal({ title, content, isModelOpen, setIsModelOpen }: M
 
   return (
     <Md
-      className='w-full h-full'
+      className='w-full h-full modal'
       title={title}
       onOk={() => setIsModelOpen(false)}
       onCancel={() => setIsModelOpen(false)}

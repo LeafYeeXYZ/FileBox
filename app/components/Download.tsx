@@ -1,11 +1,9 @@
-'use client'
+'use cient'
 import { Input, Button, Switch, Progress } from 'antd'
 import { GiftOutlined, LoadingOutlined } from '@ant-design/icons'
 import { useEffect, useRef, useState } from 'react'
 import { flushSync } from 'react-dom'
-import { hc } from 'hono/client'
 import { f0 } from 'file0'
-import { GetVar } from '../lib/getVar'
 
 type DownloadProps = {
   setDisabled: React.Dispatch<React.SetStateAction<boolean>>
@@ -32,8 +30,8 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
   // 下载事件处理函数
   const handleDownloadR2 = async (key: string, shouldDelete: boolean) => {
 
-    const server = GetVar('SERVER')
-    const password = GetVar('DOWNLOAD_PW')
+    const server = localStorage.getItem('SERVER') ?? process.env.NEXT_PUBLIC_DEFAULT_SERVER ?? ''
+    const password = localStorage.getItem('DOWNLOAD_PW') ?? process.env.NEXT_PUBLIC_DEFAULT_DOWNLOAD_PW ?? ''
 
     try {
       // 设置下载状态
@@ -112,7 +110,7 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
     }
   }
   const handleDownloadMongodb = async (key: string, shouldDelete: boolean) => {
-    const password = GetVar('DOWNLOAD_PW')
+    const password = localStorage.getItem('DOWNLOAD_PW') ?? process.env.NEXT_PUBLIC_DEFAULT_DOWNLOAD_PW ?? ''
 
     try {
       // 设置下载状态
@@ -185,7 +183,7 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
   }
   const handleDownloadFile0 = async (key: string, shouldDelete: boolean) => {
 
-    const password = GetVar('DOWNLOAD_PW')
+    const password = localStorage.getItem('DOWNLOAD_PW') ?? process.env.NEXT_PUBLIC_DEFAULT_DOWNLOAD_PW ?? ''
 
     try {
       // 设置下载状态
@@ -270,7 +268,7 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
     }
   }
   const handleDownloadSupabase = async (key: string, shouldDelete: boolean) => {
-    const password = GetVar('DOWNLOAD_PW')
+    const password = localStorage.getItem('DOWNLOAD_PW') ?? process.env.NEXT_PUBLIC_DEFAULT_DOWNLOAD_PW ?? ''
 
     try {
       // 设置下载状态
@@ -348,7 +346,7 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
   // 太无语了，Upload 组件同样的逻辑就不会报错
   const [displayName, setDisplayName] = useState<string>('')
   useEffect(() => {
-    setDisplayName(STORAGES[GetVar('STORAGE')].displayName)
+    setDisplayName(STORAGES[localStorage.getItem('STORAGE') ?? process.env.NEXT_PUBLIC_DEFAULT_STORAGE ?? 'file0'].displayName)
   }, [])
   
   return (
@@ -386,7 +384,7 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
       <Button
         className='w-full absolute bottom-0 left-0'
         onClick={async () => {
-          const storage = GetVar('STORAGE')
+          const storage = localStorage.getItem('STORAGE') ?? process.env.NEXT_PUBLIC_DEFAULT_STORAGE ?? 'file0'
           if (storage === 'r2') {
             await handleDownloadR2(keyRef.current, deleteRef.current)
           } else if (storage === 'mongodb') {

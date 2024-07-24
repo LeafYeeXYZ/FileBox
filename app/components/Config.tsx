@@ -5,7 +5,7 @@ import { useState } from 'react'
 
 export default function Config() {
 
-  const [appear, setAppear] = useState<boolean>((localStorage.getItem('STORAGE') ?? process.env.NEXT_PUBLIC_DEFAULT_STORAGE ?? 'file0') === 'r2')
+  const [appear, setAppear] = useState<boolean>((localStorage.getItem('STORAGE') ?? process.env.NEXT_PUBLIC_DEFAULT_STORAGE ?? 'supabase') === 'r2')
 
   return (
     <div className='relative w-full h-full'>
@@ -35,7 +35,7 @@ export default function Config() {
         </p>
         <Radio.Group
           className='mb-2 w-full'
-          defaultValue={localStorage.getItem('STORAGE') ?? process.env.NEXT_PUBLIC_DEFAULT_STORAGE ?? 'file0'}
+          defaultValue={localStorage.getItem('STORAGE') ?? process.env.NEXT_PUBLIC_DEFAULT_STORAGE ?? 'supabase'}
           onChange={e => {
             localStorage.setItem('STORAGE', e.target.value)
             if (e.target.value === 'r2') {

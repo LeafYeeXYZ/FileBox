@@ -82,7 +82,7 @@ Create a storage bucket named `filebox` and create a table named `filebox` in `S
 | `NEXT_PUBLIC_DEFAULT_SERVER` | Client Default R2 Server | - | No |
 | `NEXT_PUBLIC_DEFAULT_UPLOAD_PW` | Client Default Upload Password | - | No |
 | `NEXT_PUBLIC_DEFAULT_DOWNLOAD_PW` | Client Default Download Password | - | No |
-| `NEXT_PUBLIC_DEFAULT_STORAGE` | Client Default Storage Server<br>`r2` / `mongodb` / `file0` / `supabase` | `file0` | No |
+| `NEXT_PUBLIC_DEFAULT_STORAGE` | Client Default Storage Server<br>`r2` / `mongodb` / `file0` / `supabase` | `supabase` | No |
 
 ## 5 Frontend Config
 | Name | Description |

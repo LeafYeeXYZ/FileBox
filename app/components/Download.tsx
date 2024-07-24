@@ -358,7 +358,7 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
   // 太无语了，Upload 组件同样的逻辑就不会报错
   const [displayName, setDisplayName] = useState<string>('')
   useEffect(() => {
-    setDisplayName(STORAGES[localStorage.getItem('STORAGE') ?? process.env.NEXT_PUBLIC_DEFAULT_STORAGE ?? 'file0'].displayName)
+    setDisplayName(STORAGES[localStorage.getItem('STORAGE') ?? process.env.NEXT_PUBLIC_DEFAULT_STORAGE ?? 'supabase'].displayName)
   }, [])
   
   return (
@@ -396,7 +396,7 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
       <Button
         className='w-full absolute bottom-0 left-0'
         onClick={async () => {
-          const storage = localStorage.getItem('STORAGE') ?? process.env.NEXT_PUBLIC_DEFAULT_STORAGE ?? 'file0'
+          const storage = localStorage.getItem('STORAGE') ?? process.env.NEXT_PUBLIC_DEFAULT_STORAGE ?? 'supabase'
           if (storage === 'r2') {
             await handleDownloadR2(keyRef.current, deleteRef.current)
           } else if (storage === 'mongodb') {

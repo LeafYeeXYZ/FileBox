@@ -22,13 +22,13 @@ export async function POST(req: Request) {
     }
     const { filename, chunkCount } = meta
     // 获取文件
-    const file: string[] = []
+    let file: string = ''
     for (let i = 0; i < chunkCount; i++) {
       const data = await fileColl.findOne({ key, index: i }) as any
       if (!data) {
         return new Response('云端文件不完整, 请尝试重新上传', { status: 500 })
       }
-      file.push(data.chunk)
+      file += data.chunk
     }
     // 删除数据
     if (shouldDelete) {
@@ -37,10 +37,10 @@ export async function POST(req: Request) {
     }
     // 返回结果
     return new Response(
-      file.join(''),
+      file,
       {
         headers: {
-          'Content-Disposition': `attachment; filename="${filename}"`,
+          'Content-Disposition': `attachment; filename="${encodeURI(filename)}"`,
           'Content-Length': file.length.toString(),
         }
       }

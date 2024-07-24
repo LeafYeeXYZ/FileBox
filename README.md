@@ -35,16 +35,12 @@ Above all, you should set `FILEBOX_UPLOAD_PW`, `FILEBOX_DOWNLOAD_PW` environment
 
 不管使用哪种存储方案, 你都需要在 `.env` 文件或 `Vercel` 中设置 `FILEBOX_UPLOAD_PW`, `FILEBOX_DOWNLOAD_PW` 环境变量.
 
-#### 3.1.1 For Cloudflare R2 (Not Recommended)
-如果使用 `R2` (不推荐)
+#### 3.1.1 For Cloudflare R2
+如果使用 `Cloudflare R2`
 
 See [this project](https://github.com/LeafYeeXYZ/MyAPIs).
 
 见[此项目](https://github.com/LeafYeeXYZ/MyAPIs).
-
-> Due to the limitation of max CPU time of the free plan of `Cloudflare Workers`, the maximum size of the file that can be uploaded is proximately 10MB when using `R2`.
-
-> 由于 `Cloudflare Workers` 免费计划的最大 CPU 时间限制, 在使用 `R2` 时, 可上传的文件最大大小约为 10MB.
 
 #### 3.1.2 For MongoDB
 如果使用 `MongoDB`
@@ -101,7 +97,11 @@ Create a storage bucket named `filebox` and create a table named `filebox` in `S
 
 | Storage | Upload | Download |
 | :---: | :---: | :---: |
-| `R2` | ✅ (By WebSocket) | ✅ (By WebSocket) |
+| `R2` | ✅ (XHR's onUploadProgress Event) | ✅ (Fetch & Stream API) |
 | `MongoDB` | ✅ (Split File into Chunks) | ✅ (Fetch & Stream API) |
 | `File0` | ❌ (SDK's Upload API) | ✅ (SDK's Download as Stream) |
 | `Supabase` | ✅ (XHR's onUploadProgress Event) | ✅ (Public Direct Download Link) |
+
+> `R2` and `MongoDB` have different real-time upload progress implementations because vercel has a 4.5MB limit on the request body size while cloudflare workers is 100MB.
+
+> `R2` 和 `MongoDB` 有不同的实时上传进度实现, 因为 vercel 对请求体大小有 4.5MB 的限制, 而 cloudflare workers 为 100MB.

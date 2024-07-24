@@ -50,55 +50,27 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
       if (!server) throw new Error('请设置服务器地址')
       if (!uploadPw) throw new Error('请设置上传密码')
       // 判断文件大小
-      if (file.size > 1024 * 1024 * 10) throw new Error('文件过大')
-      // 文件转为 number[]
-      const buffer = await file.arrayBuffer()
-      const array = Array.from(new Uint8Array(buffer))
-      // 确定文件分块数量
-      const chunkSize = 1024 * 256
-      const chunks = Math.ceil(array.length / chunkSize)
-      // 启动 WebSocket
-      flushSync(() => setProgress(5))
-      const client = hc(`https://${server}/filebox/upload`)
-      const ws = client.ws.$ws(0)
-      await new Promise((resolve, reject) => {
-        ws.addEventListener('open', () => {
-          resolve(null)
-        })
-        ws.addEventListener('error', error => {
-          reject(error)
-        })
+      if (file.size > 1024 * 1024 * 50) throw new Error('文件过大')
+      // 文件转为 base64
+      const reader = new FileReader()
+      const base64 = await new Promise<string>((resolve, reject) => {
+        reader.onload = () => resolve(reader.result as string)
+        reader.onerror = error => reject(error)
+        reader.readAsDataURL(file)
       })
-      // 发送文件信息
+      // 发送上传请求
       flushSync(() => setProgress(10))
-      for (let i = 0; i < chunks; i++) {
-        const chunk = array.slice(i * chunkSize, ((i + 1) * chunkSize) > array.length ? array.length : (i + 1) * chunkSize)
-        ws.send(JSON.stringify({
-          key,
-          max: chunks - 1,
-          index: i,
-          password: uploadPw,
-          data: chunk,
-          filename
-        }))
-        await new Promise((resolve, reject) => {
-          const timer = setTimeout(() => {
-            ws.close()
-            reject(new Error('上传超时, 可能是由于网络不稳定、WebSocket 连接被防火墙屏蔽、Workers 达到最大 CPU 时间等'))
-          }, 1000 * 30)
-          ws.addEventListener('message', message => {
-            clearTimeout(timer)
-            if (message.data === 'continue' || message.data === 'success') {
-              resolve(null)
-            } else {
-              reject(message.data)
-            }
-          })
-        })
-        flushSync(() => setProgress(+(10 + 90 * (i + 1) / chunks)))
+      const xhr = new XMLHttpRequest()
+      xhr.open('POST', `https://${server}/filebox/upload`)
+      xhr.upload.onprogress = event => {
+        flushSync(() => setProgress(+(10 + 89 * event.loaded / event.total)))
       }
-      // 关闭 WebSocket
-      ws.close()
+      xhr.send(JSON.stringify({ key, filename, file: base64, password: uploadPw }))
+      await new Promise((resolve, reject) => {
+        xhr.onload = () => resolve(null)
+        xhr.onerror = error => reject(error)
+      })
+      flushSync(() => setProgress(100))
       // 弹窗提示
       flushSync(() => {
         setModelTitle('上传成功')
@@ -372,7 +344,7 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
       maxUploadSize: string
     }
   } = {
-    r2: { displayName: 'Cloudflare R2', maxUploadSize: '10MB' },
+    r2: { displayName: 'Cloudflare R2', maxUploadSize: '50MB' },
     mongodb: { displayName: 'MongoDB', maxUploadSize: '50MB' },
     file0: { displayName: 'File0', maxUploadSize: '50MB' },
     supabase: { displayName: 'Supabase', maxUploadSize: '50MB' },

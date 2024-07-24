@@ -47,70 +47,48 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
       if (!key) throw new Error('请输入取件码')
       if (!server) throw new Error('请设置服务器地址')
       if (!password) throw new Error('请设置下载密码')
-      // 启动 WebSocket
+      // 发送下载请求（meta）
       flushSync(() => setProgress(5))
-      const client = hc(`https://${server}/filebox/download`)
-      const ws = client.ws.$ws(0)
-      await new Promise((resolve, reject) => {
-        ws.addEventListener('open', () => {
-          resolve(null)
-        })
-        ws.addEventListener('error', error => {
-          reject(error)
-        })
+      const meatRes = await fetch(`https://${server}/filebox/download`, {
+        method: 'POST',
+        body: JSON.stringify({ key, password, shouldDelete, type: 'meta' }),
       })
-      // 发送下载请求
+      if (meatRes.status !== 200) {
+        const error = await meatRes.text()
+        throw new Error(error)
+      }
+      const { filename, filesize } = await meatRes.json()
+      // 使用 fetch 和流式响应来获取下载进度
       flushSync(() => setProgress(10))
-      let data: number[] = []
-      let end: boolean = false
-      let filename: string = ''
-      type DownloadData = {
-        index: number
-        max: number
-        data: number[]
-        filename: string
-        error?: string
+      const fileRes = await fetch(`https://${server}/filebox/download`, {
+        method: 'POST',
+        body: JSON.stringify({ key, password, shouldDelete, type: 'file' }),
+      })
+      if (fileRes.status !== 200) {
+        const error = await fileRes.text()
+        throw new Error(error)
       }
-      while (!end) {
-        const downloadData: DownloadData = await new Promise((resolve, reject) => {
-          ws.send(JSON.stringify({ key, password, shouldDelete }))
-          const timer = setTimeout(() => {
-            ws.close()
-            reject(new Error('下载超时, 可能是由于网络不稳定、WebSocket 连接被防火墙屏蔽、Workers 达到最大 CPU 时间等'))
-          }, 1000 * 30)
-          ws.addEventListener('message', event => {
-            clearTimeout(timer)
-            const downloadData = JSON.parse(event.data)
-            resolve(downloadData)
-          })
-          ws.addEventListener('error', error => {
-            reject(error)
-          })
-        })
-        if (downloadData.error) throw new Error(downloadData.error)
-        data = [...data, ...downloadData.data]
-        end = downloadData.index === downloadData.max
-        filename = downloadData.filename
-        flushSync(() => setProgress(+(10 + 90 * (downloadData.index + 1) / (downloadData.max + 1))))
+      let file: string = ''
+      const reader = fileRes.body!.getReader()
+      const decoder = new TextDecoder()
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        file += decoder.decode(value)
+        flushSync(() => setProgress(10 + 89 * file.length / filesize))
       }
-      // 关闭 WebSocket
-      ws.close()
       // 下载文件
-      const blob = new Blob([new Uint8Array(data)])
-      const url = URL.createObjectURL(blob)
+      flushSync(() => setProgress(100))
       const a = document.createElement('a')
-      a.href = url
+      a.href = file
       a.download = filename
       a.click()
       // 弹窗提示
       flushSync(() => {
         setModelTitle('下载成功')
-        setModelContent(<span>如果浏览器未自动弹出下载，请<a href={url} download={filename}>点击此处下载</a> (链接 5 分钟内有效)</span>)
+        setModelContent(<span>如果浏览器未自动弹出下载，请<a href={file} download={filename}>点击此处下载</a></span>)
         setIsModelOpen(true)
       })
-      setTimeout(() => {
-        URL.revokeObjectURL(url)
-      }, 300000)
 
     } catch (error) {
       // 弹窗提示
@@ -162,7 +140,7 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
       flushSync(() => setProgress(10))
       let file: string = ''
       const filesize = +res.headers.get('Content-Length')!
-      const filename = res.headers.get('Content-Disposition')!.split('filename=')[1].replace(/"/g, '')
+      const filename = decodeURI(res.headers.get('Content-Disposition')!.split('filename=')[1].replace(/"/g, ''))
       const reader = res.body!.getReader()
       const decoder = new TextDecoder()
       while (true) {

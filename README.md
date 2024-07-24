@@ -49,15 +49,15 @@ Set `MONGODB_URI` environment variables in `.env` file or `Vercel`.
 
 在 `.env` 文件或 `Vercel` 中设置 `MONGODB_URI` 环境变量.
 
-#### 3.1.3 For [File0](https://file0.dev/) (Recommended)
-如果使用 [`File0`](https://file0.dev/) (推荐)
+#### 3.1.3 For [File0](https://file0.dev/)
+如果使用 [`File0`](https://file0.dev/)
 
 Set `F0_SECRET_KEY` environment variable in `.env` file or `Vercel`.
 
 在 `.env` 文件或 `Vercel` 中设置 `F0_SECRET_KEY` 环境变量.
 
-#### 3.1.4 For [Supabase](https://supabase.io/) (Recommended)
-如果使用 [`Supabase`](https://supabase.io/) (推荐)
+#### 3.1.4 For [Supabase](https://supabase.io/)
+如果使用 [`Supabase`](https://supabase.io/)
 
 Set `SUPABASE_URL` and `SUPABASE_KEY` environment variables in `.env` file or `Vercel`.
 
@@ -102,6 +102,6 @@ Create a storage bucket named `filebox` and create a table named `filebox` in `S
 | `File0` | ❌ (SDK's Upload API) | ✅ (SDK's Download as Stream) |
 | `Supabase` | ✅ (XHR's onUploadProgress Event) | ✅ (Public Direct Download Link) |
 
-> `R2` and `MongoDB` have different real-time upload progress implementations because vercel has a 4.5MB limit on the request body size while cloudflare workers is 100MB.
+> `R2` and `MongoDB` have different real-time upload progress implementations because vercel has a 4.5MB limit on the request body size while cloudflare workers is 100MB. As a result, `MongoDB`'s upload speed is slower than other three storage solutions.
 
-> `R2` 和 `MongoDB` 有不同的实时上传进度实现, 因为 vercel 对请求体大小有 4.5MB 的限制, 而 cloudflare workers 为 100MB.
+> `R2` 和 `MongoDB` 有不同的实时上传进度实现, 因为 vercel 对请求体大小有 4.5MB 的限制, 而 cloudflare workers 为 100MB. 因此, `MongoDB` 的上传速度比其他三种存储方案慢.

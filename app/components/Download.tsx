@@ -225,24 +225,21 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
       flushSync(() => setProgress(15))
       const stream = await f0.useToken(tokens.fileToken).get({ as: 'stream' })
       const reader = stream!.getReader()
-      let data: number[] = []
-      let end: boolean = false
-      while (!end) {
+      let data: Uint8Array = new Uint8Array()
+      while (true) {
         const { value, done } = await reader.read()
-        if (done) {
-          end = true
-          flushSync(() => setProgress(100))
-        } else {
-          data = [...data, ...Array.from(value)]
-          flushSync(() => setProgress(15 + 84 * data.length / metadata!.size))
-        }
+        if (done) break
+        data = new Uint8Array([...data, ...value])
+        console.log(data.byteLength, metadata!.size)
+        flushSync(() => setProgress(15 + 84 * data.byteLength / metadata!.size))
       }
-      const file = new Blob([new Uint8Array(data)])
+      const file = new Blob([data])
+      flushSync(() => setProgress(100))
       if (shouldDelete) {
         await f0.useToken(tokens.keyToken).delete()
         await f0.useToken(tokens.fileToken).delete()
       }
-      const url = URL.createObjectURL(file!)
+      const url = URL.createObjectURL(file)
       const a = document.createElement('a')
       a.href = url
       a.download = filename!

@@ -218,7 +218,7 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
       flushSync(() => setProgress(5))
       const res = await fetch('/api/file0/upload', {
         method: 'POST',
-        body: JSON.stringify({ key, filename, password }),
+        body: JSON.stringify({ key, password }),
       })
       if (res.status !== 200) {
         const error = await res.text()
@@ -228,7 +228,7 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
       // 发送上传请求
       flushSync(() => setProgress(10))
       timer = setInterval(() => {
-        flushSync(() => setProgress(prev => prev >= 97 ? prev : prev + Math.random() * 2))
+        flushSync(() => setProgress(prev => prev >= 90 ? prev : prev + Math.random() * 5))
       }, 500)
       await f0.useToken(tokens.keyToken).set(filename)
       await f0.useToken(tokens.fileToken).set(file)

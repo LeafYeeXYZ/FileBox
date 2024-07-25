@@ -5,7 +5,7 @@ export async function POST(req: Request) {
     // 获取请求体
     const body = await req.json()
     // 获取数据
-    const { key, filename, password } = body
+    const { key, password } = body
     // 判断密码
     if (password !== (process.env.FILEBOX_UPLOAD_PW ?? '')) {
       return new Response('上传密码错误', { status: 403 })
@@ -15,7 +15,7 @@ export async function POST(req: Request) {
       expiresIn: '30min',
       maxUploadSize: '5kb'
     })
-    const fileToken = await f0.createToken(filename, {
+    const fileToken = await f0.createToken(`${key}.file`, {
       expiresIn: '30min',
       maxUploadSize: '99mb'
     })

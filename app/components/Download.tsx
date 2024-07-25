@@ -67,19 +67,17 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
         const error = await fileRes.text()
         throw new Error(error)
       }
-      let file: string = ''
+      let file: Uint8Array = new Uint8Array()
       const reader = fileRes.body!.getReader()
-      const decoder = new TextDecoder()
       while (true) {
         const { done, value } = await reader.read()
         if (done) break
-        file += decoder.decode(value)
-        flushSync(() => setProgress(10 + 89 * file.length / filesize))
+        file = new Uint8Array([...file, ...value])
+        flushSync(() => setProgress(10 + 89 * file.byteLength / filesize))
       }
-      // 下载文件, base64 转 blob
+      // 下载文件, 转 blob
       flushSync(() => setProgress(100))
-      const data = file.split(',')[1]
-      const blob = new Blob([new Uint8Array(atob(data).split('').map(c => c.charCodeAt(0)))])
+      const blob = new Blob([file])
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
@@ -144,8 +142,8 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
       // 下载文件
       flushSync(() => setProgress(10))
       let file: string = ''
-      const filesize = +res.headers.get('Content-Length')!
-      const filename = decodeURI(res.headers.get('Content-Disposition')!.split('filename=')[1].replace(/"/g, ''))
+      const filesize = +res.headers.get('X-FILEBOX-Content-Length')!
+      const filename = decodeURI(res.headers.get('X-FILEBOX-Content-Disposition')!.split('filename=')[1].replace(/"/g, ''))
       const reader = res.body!.getReader()
       const decoder = new TextDecoder()
       while (true) {

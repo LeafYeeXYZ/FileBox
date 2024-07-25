@@ -42,8 +42,8 @@ See [this project](https://github.com/LeafYeeXYZ/MyAPIs).
 
 见[此项目](https://github.com/LeafYeeXYZ/MyAPIs).
 
-#### 3.1.2 For MongoDB
-如果使用 `MongoDB`
+#### 3.1.2 For MongoDB (Not Recommended)
+如果使用 `MongoDB` (不推荐)
 
 Set `MONGODB_URI` environment variables in `.env` file or `Vercel`.
 
@@ -98,7 +98,7 @@ Create a storage bucket named `filebox` and create a table named `filebox` in `S
 | Storage | Upload | Download |
 | :---: | :---: | :---: |
 | `R2` | ✅ (XHR's onUploadProgress Event) | ✅ (Fetch & Stream API) |
-| `MongoDB` | ✅ (Split File into Chunks) | ✅ (Fetch & Stream API) |
+| `MongoDB` | ✅ (Split File into Chunks & XHR's onUploadProgress Event) | ✅ (Fetch & Stream API) |
 | `File0` | ❌ (SDK's Upload API) | ✅ (SDK's Download as Stream) |
 | `Supabase` | ✅ (XHR's onUploadProgress Event) | ✅ (Public Direct Download Link) |
 

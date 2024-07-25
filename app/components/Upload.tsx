@@ -50,13 +50,8 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
       if (!uploadPw) throw new Error('请设置上传密码')
       // 判断文件大小
       if (file.size > 1024 * 1024 * STORAGES.r2.maxUploadSize) throw new Error('文件过大')
-      // 文件转为 base64
-      const reader = new FileReader()
-      const base64 = await new Promise<string>((resolve, reject) => {
-        reader.onload = () => resolve(reader.result as string)
-        reader.onerror = error => reject(error)
-        reader.readAsDataURL(file)
-      })
+      // 文件转为 arrayBuffer
+      const data = await file.arrayBuffer()
       // 发送上传请求
       flushSync(() => setProgress(10))
       const xhr = new XMLHttpRequest()
@@ -64,7 +59,10 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
       xhr.upload.onprogress = event => {
         flushSync(() => setProgress(+(10 + 89 * event.loaded / event.total)))
       }
-      xhr.send(JSON.stringify({ key, filename, file: base64, password: uploadPw }))
+      xhr.setRequestHeader('X-FILEBOX-PASSWORD', encodeURI(uploadPw))
+      xhr.setRequestHeader('X-FILEBOX-KEY', encodeURI(key))
+      xhr.setRequestHeader('X-FILEBOX-FILENAME', encodeURI(filename))
+      xhr.send(data)
       await new Promise((resolve, reject) => {
         xhr.onload = () => resolve(null)
         xhr.onerror = error => reject(error)

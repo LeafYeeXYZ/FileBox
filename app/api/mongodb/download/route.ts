@@ -40,8 +40,8 @@ export async function POST(req: Request) {
       file,
       {
         headers: {
-          'Content-Disposition': `attachment; filename="${encodeURI(filename)}"`,
-          'Content-Length': file.length.toString(),
+          'X-FILEBOX-Content-Disposition': `attachment; filename="${encodeURI(filename)}"`,
+          'X-FILEBOX-Content-Length': `${file.length}`,
         }
       }
     )

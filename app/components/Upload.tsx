@@ -5,6 +5,7 @@ import { GiftOutlined, LoadingOutlined } from '@ant-design/icons'
 import { flushSync } from 'react-dom'
 import { RcFile } from 'antd/es/upload'
 import { f0 } from 'file0'
+import { STORAGES } from '../lib/storage'
 
 type UploadProps = {
   setDisabled: React.Dispatch<React.SetStateAction<boolean>>
@@ -48,7 +49,7 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
       if (!server) throw new Error('请设置服务器地址')
       if (!uploadPw) throw new Error('请设置上传密码')
       // 判断文件大小
-      if (file.size > 1024 * 1024 * 50) throw new Error('文件过大')
+      if (file.size > 1024 * 1024 * STORAGES.r2.maxUploadSize) throw new Error('文件过大')
       // 文件转为 base64
       const reader = new FileReader()
       const base64 = await new Promise<string>((resolve, reject) => {
@@ -114,7 +115,7 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
       if (!file) throw new Error('请选择文件')
       if (!password) throw new Error('请设置上传密码')
       // 判断文件大小
-      if (file.size > 1024 * 1024 * 50) throw new Error('文件过大')
+      if (file.size > 1024 * 1024 * STORAGES.mongodb.maxUploadSize) throw new Error('文件过大')
       // base64 编码
       const reader = new FileReader()
       await new Promise((resolve, reject) => {
@@ -212,7 +213,7 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
       if (!file) throw new Error('请选择文件')
       if (!password) throw new Error('请设置上传密码')
       // 判断文件大小
-      if (file.size > 1024 * 1024 * 50) throw new Error('文件过大')
+      if (file.size > 1024 * 1024 * STORAGES.file0.maxUploadSize) throw new Error('文件过大')
       // 获取 Token
       flushSync(() => setProgress(5))
       const res = await fetch('/api/file0/upload', {
@@ -278,7 +279,7 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
       if (!file) throw new Error('请选择文件')
       if (!password) throw new Error('请设置上传密码')
       // 判断文件大小
-      if (file.size > 1024 * 1024 * 50) throw new Error('文件过大')
+      if (file.size > 1024 * 1024 * STORAGES.supabase.maxUploadSize) throw new Error('文件过大')
       // 文件转为 blob
       const data = await file.arrayBuffer()
       const blob = new Blob([new Uint8Array(data)])
@@ -336,18 +337,6 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
     }
   }
 
-  const STORAGES: {
-    [key: string]: {
-      displayName: string
-      maxUploadSize: string
-    }
-  } = {
-    r2: { displayName: 'Cloudflare R2', maxUploadSize: '50MB' },
-    mongodb: { displayName: 'MongoDB', maxUploadSize: '50MB' },
-    file0: { displayName: 'File0', maxUploadSize: '50MB' },
-    supabase: { displayName: 'Supabase', maxUploadSize: '50MB' },
-  }
-
   return (
     <div className='relative w-full h-full'>
 
@@ -365,7 +354,7 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
           disabled={isUploading}
         >
           <p className='ant-upload-text'>点击或拖拽文件到此处</p>
-          <p className='ant-upload-hint'>文件需小于 {STORAGES[localStorage.getItem('STORAGE') ?? process.env.NEXT_PUBLIC_DEFAULT_STORAGE ?? 'supabase'].maxUploadSize}</p>
+          <p className='ant-upload-hint'>文件需小于 {STORAGES[localStorage.getItem('STORAGE') ?? process.env.NEXT_PUBLIC_DEFAULT_STORAGE ?? 'supabase'].maxUploadSize}MB</p>
           <p className='ant-upload-hint'>当前存储服务: {STORAGES[localStorage.getItem('STORAGE') ?? process.env.NEXT_PUBLIC_DEFAULT_STORAGE ?? 'supabase'].displayName}</p>
         </Up.Dragger>
       </div>

@@ -4,6 +4,7 @@ import { GiftOutlined, LoadingOutlined } from '@ant-design/icons'
 import { useEffect, useRef, useState } from 'react'
 import { flushSync } from 'react-dom'
 import { f0 } from 'file0'
+import { STORAGES } from '../lib/storage'
 
 type DownloadProps = {
   setDisabled: React.Dispatch<React.SetStateAction<boolean>>
@@ -343,17 +344,6 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
     }
   }
 
-  const STORAGES: {
-    [key: string]: {
-      displayName: string
-      maxUploadSize: string
-    }
-  } = {
-    r2: { displayName: 'Cloudflare R2', maxUploadSize: '10MB' },
-    mongodb: { displayName: 'MongoDB', maxUploadSize: '50MB' },
-    file0: { displayName: 'File0', maxUploadSize: '50MB' },
-    supabase: { displayName: 'Supabase', maxUploadSize: '50MB' },
-  }
   // 解决 Next.js 的错误优化，无奈使用 state
   // 太无语了，Upload 组件同样的逻辑就不会报错
   const [displayName, setDisplayName] = useState<string>('')

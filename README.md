@@ -9,24 +9,24 @@ A serverless file delivery web app based on free `Cloudflare R2` / `MongoDB Atla
 # Usage
 使用方法
 
-## 1 Install Dependencies
+# 1 Install Dependencies
 安装依赖
 
 ```bash
 bun i
 ```
 
-## 2 Local Development
+# 2 Local Development
 本地开发
 
 ```bash
 bun dev
 ```
 
-## 3 Deploy
+# 3 Deploy
 部署
 
-### 3.1 Config Storage
+## 3.1 Config Storage
 You can use all the storage solutions while only one of them is required. And when using `R2`, you should deploy a separate server side project (not this `Next.js` project).
 
 你可以同时使用所有存储解决方案, 但只需要其中一个. 当使用 `R2` 时, 你需要部署一个单独的服务端项目 (不是这个 `Next.js` 项目).
@@ -35,28 +35,28 @@ Above all, you should set `FILEBOX_UPLOAD_PW`, `FILEBOX_DOWNLOAD_PW` environment
 
 不管使用哪种存储方案, 你都需要在 `.env` 文件或 `Vercel` 中设置 `FILEBOX_UPLOAD_PW`, `FILEBOX_DOWNLOAD_PW` 环境变量.
 
-#### 3.1.1 For Cloudflare R2
+### 3.1.1 For Cloudflare R2
 如果使用 `Cloudflare R2`
 
 See [this project](https://github.com/LeafYeeXYZ/MyAPIs).
 
 见[此项目](https://github.com/LeafYeeXYZ/MyAPIs).
 
-#### 3.1.2 For MongoDB (Not Recommended)
+### 3.1.2 For MongoDB (Not Recommended)
 如果使用 `MongoDB` (不推荐)
 
 Set `MONGODB_URI` environment variables in `.env` file or `Vercel`.
 
 在 `.env` 文件或 `Vercel` 中设置 `MONGODB_URI` 环境变量.
 
-#### 3.1.3 For [File0](https://file0.dev/)
+### 3.1.3 For [File0](https://file0.dev/)
 如果使用 [`File0`](https://file0.dev/)
 
 Set `F0_SECRET_KEY` environment variable in `.env` file or `Vercel`.
 
 在 `.env` 文件或 `Vercel` 中设置 `F0_SECRET_KEY` 环境变量.
 
-#### 3.1.4 For [Supabase](https://supabase.io/)
+### 3.1.4 For [Supabase](https://supabase.io/)
 如果使用 [`Supabase`](https://supabase.io/)
 
 Set `SUPABASE_URL` and `SUPABASE_KEY` environment variables in `.env` file or `Vercel`.
@@ -67,10 +67,10 @@ Create a storage bucket named `filebox` and create a table named `filebox` in `S
 
 在 `Supabase` 控制台中创建一个名为 `filebox` 的存储桶, 并创建一个名为 `filebox` 的表. 表应该有以下列: key (text), filename (text), created_at (timestamp).
 
-### 3.2 Deploy to [Vercel](https://vercel.com/)
+## 3.2 Deploy to [Vercel](https://vercel.com/)
 部署到 [Vercel](https://vercel.com/)
 
-## 4 All Environment Variables
+# 4 All Environment Variables
 | Name | Description | Default | Required |
 | :---: | :---: | :---: | :---: |
 | `FILEBOX_UPLOAD_PW` | Upload Password | - | Yes |
@@ -84,7 +84,7 @@ Create a storage bucket named `filebox` and create a table named `filebox` in `S
 | `NEXT_PUBLIC_DEFAULT_DOWNLOAD_PW` | Client Default Download Password | - | No |
 | `NEXT_PUBLIC_DEFAULT_STORAGE` | Client Default Storage Server<br>`r2` / `mongodb` / `file0` / `supabase` | `supabase` | No |
 
-## 5 Frontend Config
+# 5 Frontend Config
 | Name | Description |
 | :---: | :---: |
 | `上传密码` | For authentication, should be the same as the `FILEBOX_UPLOAD_PW` environment variable in the server side |
@@ -92,7 +92,7 @@ Create a storage bucket named `filebox` and create a table named `filebox` in `S
 | `存储服务器` | Choose storage server |
 | `R2 服务器地址` | See [3.1.1](#311-for-cloudflare-r2), only appears when `R2` is selected |
 
-## 6 Realtime Progress Support
+# 6 Realtime Progress Support
 上传/下载实时进度支持情况
 
 | Storage | Upload | Download |
@@ -106,7 +106,7 @@ Create a storage bucket named `filebox` and create a table named `filebox` in `S
 
 > `R2` 和 `MongoDB` 有不同的实时上传进度实现, 因为 vercel 对请求体大小有 4.5MB 的限制, 而 cloudflare workers 为 100MB. 因此, `MongoDB` 的上传速度比其他三种存储方案慢.
 
-## 7 Storage Architecture
+# 7 Storage Architecture
 存储架构
 
 | Storage | File | Metadata |

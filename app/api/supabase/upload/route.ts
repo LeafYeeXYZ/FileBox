@@ -16,7 +16,7 @@ export async function POST(req: Request) {
     let re: { error: any, data: any } = { error: null, data: null }
     re = await supabase
       .from('filebox')
-      .upsert({ key, filename })
+      .insert({ key, filename })
     if (re.error) {
       throw new Error(JSON.stringify(re.error))
     }

@@ -92,7 +92,7 @@ Create a storage bucket named `filebox` and create a table named `filebox` in `S
 | `存储服务器` | Choose storage server |
 | `R2 服务器地址` | See [3.1.1](#311-for-cloudflare-r2), only appears when `R2` is selected |
 
-## 6 Upload/Dowload Realtime Progress Support
+## 6 Realtime Progress Support
 上传/下载实时进度支持情况
 
 | Storage | Upload | Download |
@@ -105,3 +105,13 @@ Create a storage bucket named `filebox` and create a table named `filebox` in `S
 > `R2` and `MongoDB` have different real-time upload progress implementations because vercel has a 4.5MB limit on the request body size while cloudflare workers is 100MB. As a result, `MongoDB`'s upload speed is slower than other three storage solutions.
 
 > `R2` 和 `MongoDB` 有不同的实时上传进度实现, 因为 vercel 对请求体大小有 4.5MB 的限制, 而 cloudflare workers 为 100MB. 因此, `MongoDB` 的上传速度比其他三种存储方案慢.
+
+## 7 Storage Architecture
+存储架构
+
+| Storage | File | Metadata |
+| :---: | :---: | :---: |
+| `R2` | Cloudflare R2 (ArrayBuffer) | Cloudflare R2 |
+| `MongoDB` | `file` Collection (Base64) | `meta` Collection |
+| `File0` | File0 (Blob) | File0 |
+| `Supabase` | Supabase Storage (Blob) | Supabase Postgres |

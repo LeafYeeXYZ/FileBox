@@ -13,7 +13,7 @@ export async function POST(req: Request) {
     // 生成 Token
     const keyToken = await f0.createToken(key, {
       expiresIn: '30min',
-      maxUploadSize: '0'
+      maxUploadSize: '5kb'
     })
     const fileToken = await f0.createToken(filename, {
       expiresIn: '30min',

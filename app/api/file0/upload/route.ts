@@ -17,7 +17,7 @@ export async function POST(req: Request) {
     })
     const fileToken = await f0.createToken(filename, {
       expiresIn: '30min',
-      maxUploadSize: '90mb'
+      maxUploadSize: '99mb'
     })
     // 返回结果
     return new Response(JSON.stringify({ keyToken, fileToken }))

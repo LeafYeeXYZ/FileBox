@@ -125,7 +125,7 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
       })
       const base64 = reader.result as string
       const base64Length = base64.length
-      const chunkSize = 1024 * 1024 * 2
+      const chunkSize = 1024 * 1024 * 4
       const chunkCount = Math.ceil(base64Length / chunkSize)
       const chunks = []
       for (let i = 0; i < chunkCount; i++) {
@@ -144,27 +144,29 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
       // 发送上传请求 (file)
       flushSync(() => setProgress(10))
       for (let i = 0; i < chunkCount; i++) {
-        let res: Response
         try {
-          res = await fetch('/api/mongodb/upload', {
-            method: 'POST',
-            body: JSON.stringify({ key, filename, file: chunks[i], password, chunkCount, chunkIndex: i }),
-          })
-          if (res.status !== 200) {
-            const error = await res.text()
-            throw new Error(error)
+          const xhr = new XMLHttpRequest()
+          xhr.open('POST', '/api/mongodb/upload')
+          xhr.upload.onprogress = event => {
+            flushSync(() => setProgress(+(10 + (89 * (i + (event.loaded / event.total)) / chunkCount))))
           }
+          xhr.send(JSON.stringify({ key, filename, file: chunks[i], password, chunkCount, chunkIndex: i }))
+          await new Promise((resolve, reject) => {
+            xhr.onload = () => resolve(null)
+            xhr.onerror = error => reject(error)
+          })
         } catch (error) {
-          res = await fetch('/api/mongodb/upload', {
-            method: 'POST',
-            body: JSON.stringify({ key, filename, file: chunks[i], password, chunkCount, chunkIndex: i }),
-          })
-          if (res.status !== 200) {
-            const error = await res.text()
-            throw new Error(error)
+          const xhr = new XMLHttpRequest()
+          xhr.open('POST', '/api/mongodb/upload')
+          xhr.upload.onprogress = event => {
+            flushSync(() => setProgress(+(10 + (89 * (i + (event.loaded / event.total)) / chunkCount))))
           }
+          xhr.send(JSON.stringify({ key, filename, file: chunks[i], password, chunkCount, chunkIndex: i }))
+          await new Promise((resolve, reject) => {
+            xhr.onload = () => resolve(null)
+            xhr.onerror = error => reject(error)
+          })
         }
-        flushSync(() => setProgress(+(10 + 89 * (i + 1) / chunkCount)))
       }
       flushSync(() => setProgress(100))
       // 弹窗提示

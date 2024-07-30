@@ -3,8 +3,8 @@ A serverless file delivery web app based on free `Cloudflare R2` / `MongoDB Atla
 
 基于 `Cloudflare R2` / `MongoDB Atlas` / `File0` / `Supabase` 的零成本无服务器文件快递柜, 采用 `Next.js`, `React`, `Ant Design`, `Tailwind CSS` 等技术栈.
 
-|![](README_1.png)|![](README_2.png)|![](README_3.png)|
-|:---:|:---:|:---:|
+|![](README_1.png)|![](README_2.png)|![](README_3.png)|![](README_4.png)|
+|:---:|:---:|:---:|:---:|
 
 # Usage
 使用方法

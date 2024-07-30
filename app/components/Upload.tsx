@@ -436,8 +436,7 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
             disabled={isUploading}
           >
             <p className='ant-upload-text'>点击或拖拽文件到此处</p>
-            <p className='ant-upload-hint'>文件需小于 {STORAGES[localStorage.getItem('STORAGE') ?? process.env.NEXT_PUBLIC_DEFAULT_STORAGE ?? 'supabase'].maxUploadSize}MB</p>
-            <p className='ant-upload-hint'>当前存储服务: {STORAGES[localStorage.getItem('STORAGE') ?? process.env.NEXT_PUBLIC_DEFAULT_STORAGE ?? 'supabase'].displayName}</p>
+            <p className='ant-upload-hint'>存储服务: {STORAGES[localStorage.getItem('STORAGE') ?? process.env.NEXT_PUBLIC_DEFAULT_STORAGE ?? 'supabase'].displayName} | 最大上传: {STORAGES[localStorage.getItem('STORAGE') ?? process.env.NEXT_PUBLIC_DEFAULT_STORAGE ?? 'supabase'].maxUploadSize}MB</p>
           </Up.Dragger>
         </div>
       ) : (

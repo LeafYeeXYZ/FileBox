@@ -86,11 +86,11 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
       flushSync(() => setProgress(100))
       if (filetype === 'text') {
         // 添加到剪贴板
-        await navigator.clipboard.writeText(text)
+        await navigator.clipboard.writeText(text).catch(() => {})
         // 弹窗提示
         flushSync(() => {
           setModelTitle('下载成功')
-          setModelContent(<span>文件内容 (已复制到剪贴板): {text}</span>)
+          setModelContent(<span>文件内容 (已尝试复制到剪贴板): {text}</span>)
           setIsModelOpen(true)
         })
       } else {
@@ -165,11 +165,11 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
         file = await res.text()
         flushSync(() => setProgress(100))
         // 添加到剪贴板
-        await navigator.clipboard.writeText(file)
+        await navigator.clipboard.writeText(file).catch(() => {})
         // 弹窗提示
         flushSync(() => {
           setModelTitle('下载成功')
-          setModelContent(<span>文件内容 (已复制到剪贴板): {file}</span>)
+          setModelContent(<span>文件内容 (已尝试复制到剪贴板): {file}</span>)
           setIsModelOpen(true)
         })
       } else {
@@ -262,11 +262,11 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
           await f0.useToken(tokens.fileToken).delete()
         }
         // 添加到剪贴板
-        await navigator.clipboard.writeText(file)
+        await navigator.clipboard.writeText(file).catch(() => {})
         // 弹窗提示
         flushSync(() => {
           setModelTitle('下载成功')
-          setModelContent(<span>文件内容 (已复制到剪贴板): {file as string}</span>)
+          setModelContent(<span>文件内容 (已尝试复制到剪贴板): {file as string}</span>)
           setIsModelOpen(true)
         })
       } else {
@@ -358,11 +358,11 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
       const file = data.file
       if (filetype === 'text') {
         // 添加到剪贴板
-        await navigator.clipboard.writeText(file)
+        await navigator.clipboard.writeText(file).catch(() => {})
         // 弹窗提示
         flushSync(() => {
           setModelTitle('下载成功')
-          setModelContent(<span>文件内容 (已复制到剪贴板): {file}</span>)
+          setModelContent(<span>文件内容 (已尝试复制到剪贴板): {file}</span>)
           setIsModelOpen(true)
         })
       } else {

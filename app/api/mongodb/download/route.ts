@@ -20,15 +20,19 @@ export async function POST(req: Request) {
     if (!meta) {
       return new Response('取件码不存在', { status: 404 })
     }
-    const { filename, chunkCount } = meta
+    const { filename, chunkCount, filetype } = meta
     // 获取文件
     let file: string = ''
-    for (let i = 0; i < chunkCount; i++) {
-      const data = await fileColl.findOne({ key, index: i }) as any
-      if (!data) {
-        return new Response('云端文件不完整, 请尝试重新上传', { status: 500 })
+    if (filetype === 'text') {
+      file = meta.file
+    } else {
+      for (let i = 0; i < chunkCount; i++) {
+        const data = await fileColl.findOne({ key, index: i }) as any
+        if (!data) {
+          return new Response('云端文件不完整, 请尝试重新上传', { status: 500 })
+        }
+        file += data.chunk
       }
-      file += data.chunk
     }
     // 删除数据
     if (shouldDelete) {
@@ -42,6 +46,7 @@ export async function POST(req: Request) {
         headers: {
           'X-FILEBOX-Content-Disposition': `attachment; filename="${encodeURI(filename)}"`,
           'X-FILEBOX-Content-Length': `${file.length}`,
+          'X-FILEBOX-Content-Type': `${filetype}`
         }
       }
     )

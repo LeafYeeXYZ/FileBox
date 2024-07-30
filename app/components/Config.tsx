@@ -47,9 +47,9 @@ export default function Config() {
           buttonStyle='solid'
         >
           <Radio.Button value='r2' className='w-1/4'><span className='inline-flex justify-center items-center text-xs w-full h-full'>R2</span></Radio.Button>
-          <Radio.Button value='mongodb' className='w-1/4 text-center'><span className='inline-flex justify-center items-center text-xs w-full h-full'>MongoDB</span></Radio.Button>
-          <Radio.Button value='file0' className='w-1/4 text-center'><span className='inline-flex justify-center items-center text-xs w-full h-full'>File0</span></Radio.Button>
-          <Radio.Button value='supabase' className='w-1/4 text-center'><span className='inline-flex justify-center items-center text-xs w-full h-full'>Supabase</span></Radio.Button>
+          <Radio.Button value='mongodb' className='w-1/4'><span className='inline-flex justify-center items-center text-xs w-full h-full'>MongoDB</span></Radio.Button>
+          <Radio.Button value='file0' className='w-1/4'><span className='inline-flex justify-center items-center text-xs w-full h-full'>File0</span></Radio.Button>
+          <Radio.Button value='supabase' className='w-1/4'><span className='inline-flex justify-center items-center text-xs w-full h-full'>Supabase</span></Radio.Button>
         </Radio.Group>
 
         <p 

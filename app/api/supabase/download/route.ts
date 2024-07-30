@@ -14,6 +14,7 @@ export async function POST(req: Request) {
     const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_KEY!)
     // 查询数据
     let re: { error: any, data: any } = { error: null, data: null }
+    let filetype = ''
     let filename = ''
     let file = ''
     // 元数据
@@ -28,6 +29,7 @@ export async function POST(req: Request) {
       return new Response('取件码不存在', { status: 404 })
     }
     filename = re.data[0].filename
+    filetype = re.data[0].filetype
     // 文件数据
     re = await supabase
       .storage
@@ -43,14 +45,25 @@ export async function POST(req: Request) {
     if (re.error) {
       throw new Error(JSON.stringify(re.error))
     }
-    re = await supabase
-      .storage
-      .from('filebox')
-      .createSignedUrl('_temp_file', 60 * 5, { download: filename })
-    if (re.error) {
-      throw new Error(JSON.stringify(re.error))
+    if (filetype === 'text') {
+      re = await supabase
+        .storage
+        .from('filebox')
+        .download('_temp_file')
+      if (re.error) {
+        throw new Error(JSON.stringify(re.error))
+      }
+      file = await (re.data as Blob).text()
+    } else {
+      re = await supabase
+        .storage
+        .from('filebox')
+        .createSignedUrl('_temp_file', 60 * 5, { download: filename })
+      if (re.error) {
+        throw new Error(JSON.stringify(re.error))
+      }
+      file = re.data.signedUrl
     }
-    file = re.data.signedUrl
     // 删除数据
     if (shouldDelete) {
       re = await supabase
@@ -69,7 +82,7 @@ export async function POST(req: Request) {
       }
     }
     // 返回结果
-    return new Response(JSON.stringify({ file }))
+    return new Response(JSON.stringify({ file, filetype }), { status: 200 })
 
   } catch (error) {
     // 返回错误

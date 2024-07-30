@@ -56,43 +56,60 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
         const error = await meatRes.text()
         throw new Error(error)
       }
-      const { filename, filesize } = await meatRes.json()
+      const { filename, filesize, filetype } = await meatRes.json()
       // 使用 fetch 和流式响应来获取下载进度
       flushSync(() => setProgress(10))
       const fileRes = await fetch(`https://${server}/filebox/download`, {
         method: 'POST',
-        body: JSON.stringify({ key, password, shouldDelete, type: 'file' }),
+        body: JSON.stringify({ key, password, shouldDelete, type: 'file', filetype }),
       })
       if (fileRes.status !== 200) {
         const error = await fileRes.text()
         throw new Error(error)
       }
       let file: Uint8Array = new Uint8Array()
+      let text: string = ''
       const reader = fileRes.body!.getReader()
+      const decoder = new TextDecoder()
       while (true) {
         const { done, value } = await reader.read()
         if (done) break
-        file = new Uint8Array([...file, ...value])
-        flushSync(() => setProgress(10 + 89 * file.byteLength / filesize))
+        if (filetype === 'text') {
+          text += decoder.decode(value)
+          flushSync(() => setProgress(10 + 89 * text.length / filesize))
+        } else {
+          file = new Uint8Array([...file, ...value])
+          flushSync(() => setProgress(10 + 89 * file.byteLength / filesize))
+        }
       }
       // 下载文件, 转 blob
       flushSync(() => setProgress(100))
-      const blob = new Blob([file])
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = filename
-      a.click()
-      setTimeout(() => {
-        URL.revokeObjectURL(url)
-      }, 5 * 60 * 1000)
-      // 弹窗提示
-      flushSync(() => {
-        setModelTitle('下载成功')
-        setModelContent(<span>如果浏览器未自动弹出下载，请<a href={url} download={filename}>点击此处下载</a> (链接 5 分钟内有效)</span>)
-        setIsModelOpen(true)
-      })
-
+      if (filetype === 'text') {
+        // 添加到剪贴板
+        await navigator.clipboard.writeText(text)
+        // 弹窗提示
+        flushSync(() => {
+          setModelTitle('下载成功')
+          setModelContent(<span>文件内容 (已复制到剪贴板): {text}</span>)
+          setIsModelOpen(true)
+        })
+      } else {
+        const blob = new Blob([file])
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = filename
+        a.click()
+        setTimeout(() => {
+          URL.revokeObjectURL(url)
+        }, 5 * 60 * 1000)
+        // 弹窗提示
+        flushSync(() => {
+          setModelTitle('下载成功')
+          setModelContent(<span>如果浏览器未自动弹出下载，请<a href={url} download={filename}>点击此处下载</a> (链接 5 分钟内有效)</span>)
+          setIsModelOpen(true)
+        })
+      }
     } catch (error) {
       // 弹窗提示
       flushSync(() => {
@@ -142,34 +159,49 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
       // 下载文件
       flushSync(() => setProgress(10))
       let file: string = ''
-      const filesize = +res.headers.get('X-FILEBOX-Content-Length')!
-      const filename = decodeURI(res.headers.get('X-FILEBOX-Content-Disposition')!.split('filename=')[1].replace(/"/g, ''))
-      const reader = res.body!.getReader()
-      const decoder = new TextDecoder()
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
-        file += decoder.decode(value)
-        flushSync(() => setProgress(10 + 89 * file.length / filesize))
+      const filetype = res.headers.get('X-FILEBOX-Content-Type')!
+      if (filetype === 'text') {
+        flushSync(() => setProgress(50))
+        file = await res.text()
+        flushSync(() => setProgress(100))
+        // 添加到剪贴板
+        await navigator.clipboard.writeText(file)
+        // 弹窗提示
+        flushSync(() => {
+          setModelTitle('下载成功')
+          setModelContent(<span>文件内容 (已复制到剪贴板): {file}</span>)
+          setIsModelOpen(true)
+        })
+      } else {
+        const filesize = +res.headers.get('X-FILEBOX-Content-Length')!
+        const filename = decodeURI(res.headers.get('X-FILEBOX-Content-Disposition')!.split('filename=')[1].replace(/"/g, ''))
+        const reader = res.body!.getReader()
+        const decoder = new TextDecoder()
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) break
+          file += decoder.decode(value)
+          flushSync(() => setProgress(10 + 89 * file.length / filesize))
+        }
+        // 下载文件, base64 转 blob
+        flushSync(() => setProgress(100))
+        const data = file.split(',')[1]
+        const blob = new Blob([new Uint8Array(atob(data).split('').map(c => c.charCodeAt(0)))])
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = filename
+        a.click()
+        setTimeout(() => {
+          URL.revokeObjectURL(url)
+        }, 5 * 60 * 1000)
+        // 弹窗提示
+        flushSync(() => {
+          setModelTitle('下载成功')
+          setModelContent(<span>如果浏览器未自动弹出下载，请<a href={url} download={filename}>点击此处下载</a> (链接 5 分钟内有效)</span>)
+          setIsModelOpen(true)
+        })
       }
-      // 下载文件, base64 转 blob
-      flushSync(() => setProgress(100))
-      const data = file.split(',')[1]
-      const blob = new Blob([new Uint8Array(atob(data).split('').map(c => c.charCodeAt(0)))])
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = filename
-      a.click()
-      setTimeout(() => {
-        URL.revokeObjectURL(url)
-      }, 5 * 60 * 1000)
-      // 弹窗提示
-      flushSync(() => {
-        setModelTitle('下载成功')
-        setModelContent(<span>如果浏览器未自动弹出下载，请<a href={url} download={filename}>点击此处下载</a> (链接 5 分钟内有效)</span>)
-        setIsModelOpen(true)
-      })
 
     } catch (error) {
       // 弹窗提示
@@ -220,39 +252,56 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
       const tokens = await res.json()
       // 下载文件
       flushSync(() => setProgress(10))
-      const filename = await f0.useToken(tokens.keyToken).get({ as: 'text' })
-      const metadata = await f0.useToken(tokens.fileToken).get({ as: 'metadata' })
+      const filenameOrType = await f0.useToken(tokens.keyToken).get({ as: 'text' })
       flushSync(() => setProgress(15))
-      const stream = await f0.useToken(tokens.fileToken).get({ as: 'stream' })
-      const reader = stream!.getReader()
-      let data: Uint8Array = new Uint8Array()
-      while (true) {
-        const { value, done } = await reader.read()
-        if (done) break
-        data = new Uint8Array([...data, ...value])
-        console.log(data.byteLength, metadata!.size)
-        flushSync(() => setProgress(15 + 84 * data.byteLength / metadata!.size))
+      if (filenameOrType === '_FILEBOX_TYPE_TEXT_') {
+        const file = await f0.useToken(tokens.fileToken).get({ as: 'text' }) as string
+        flushSync(() => setProgress(100))
+        if (shouldDelete) {
+          await f0.useToken(tokens.keyToken).delete()
+          await f0.useToken(tokens.fileToken).delete()
+        }
+        // 添加到剪贴板
+        await navigator.clipboard.writeText(file)
+        // 弹窗提示
+        flushSync(() => {
+          setModelTitle('下载成功')
+          setModelContent(<span>文件内容 (已复制到剪贴板): {file as string}</span>)
+          setIsModelOpen(true)
+        })
+      } else {
+        const metadata = await f0.useToken(tokens.fileToken).get({ as: 'metadata' })
+        const stream = await f0.useToken(tokens.fileToken).get({ as: 'stream' })
+        const reader = stream!.getReader()
+        let data: Uint8Array = new Uint8Array()
+        while (true) {
+          const { value, done } = await reader.read()
+          if (done) break
+          data = new Uint8Array([...data, ...value])
+          console.log(data.byteLength, metadata!.size)
+          flushSync(() => setProgress(15 + 84 * data.byteLength / metadata!.size))
+        }
+        const file = new Blob([data])
+        flushSync(() => setProgress(100))
+        if (shouldDelete) {
+          await f0.useToken(tokens.keyToken).delete()
+          await f0.useToken(tokens.fileToken).delete()
+        }
+        const url = URL.createObjectURL(file)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = filenameOrType!
+        a.click()
+        setTimeout(() => {
+          URL.revokeObjectURL(url)
+        }, 5 * 60 * 1000)
+        // 弹窗提示
+        flushSync(() => {
+          setModelTitle('下载成功')
+          setModelContent(<span>如果浏览器未自动弹出下载，请<a href={url} download={filenameOrType!}>点击此处下载</a> (链接 5 分钟内有效)</span>)
+          setIsModelOpen(true)
+        })
       }
-      const file = new Blob([data])
-      flushSync(() => setProgress(100))
-      if (shouldDelete) {
-        await f0.useToken(tokens.keyToken).delete()
-        await f0.useToken(tokens.fileToken).delete()
-      }
-      const url = URL.createObjectURL(file)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = filename!
-      a.click()
-      setTimeout(() => {
-        URL.revokeObjectURL(url)
-      }, 5 * 60 * 1000)
-      // 弹窗提示
-      flushSync(() => {
-        setModelTitle('下载成功')
-        setModelContent(<span>如果浏览器未自动弹出下载，请<a href={url} download={filename}>点击此处下载</a> (链接 5 分钟内有效)</span>)
-        setIsModelOpen(true)
-      })
 
     } catch (error) {
       // 弹窗提示
@@ -305,17 +354,29 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
       flushSync(() => setProgress(50))
       const data = await res.json() 
       // 下载文件
+      const filetype = data.filetype
       const file = data.file
-      const a = document.createElement('a')
-      a.href = file
-      a.target = '_blank'
-      a.click()
-      // 弹窗提示
-      flushSync(() => {
-        setModelTitle('下载成功')
-        setModelContent(<span>如果浏览器未自动弹出下载，请<a href={file} target='_blank'>点击此处下载</a> (链接 5 分钟内有效)</span>)
-        setIsModelOpen(true)
-      })
+      if (filetype === 'text') {
+        // 添加到剪贴板
+        await navigator.clipboard.writeText(file)
+        // 弹窗提示
+        flushSync(() => {
+          setModelTitle('下载成功')
+          setModelContent(<span>文件内容 (已复制到剪贴板): {file}</span>)
+          setIsModelOpen(true)
+        })
+      } else {
+        const a = document.createElement('a')
+        a.href = file
+        a.target = '_blank'
+        a.click()
+        // 弹窗提示
+        flushSync(() => {
+          setModelTitle('下载成功')
+          setModelContent(<span>如果浏览器未自动弹出下载，请<a href={file} target='_blank'>点击此处下载</a> (链接 5 分钟内有效)</span>)
+          setIsModelOpen(true)
+        })
+      }
 
     } catch (error) {
       // 弹窗提示

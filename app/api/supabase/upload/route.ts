@@ -5,7 +5,7 @@ export async function POST(req: Request) {
     // 获取请求体
     const body = await req.json()
     // 获取数据
-    let { key, filename, password } = body
+    let { key, filename, password, filetype } = body
     // 判断密码
     if (password !== (process.env.FILEBOX_UPLOAD_PW ?? '')) {
       return new Response('上传密码错误', { status: 403 })
@@ -16,7 +16,7 @@ export async function POST(req: Request) {
     let re: { error: any, data: any } = { error: null, data: null }
     re = await supabase
       .from('filebox')
-      .upsert({ key, filename })
+      .upsert({ key, filename, filetype })
     if (re.error) {
       throw new Error(JSON.stringify(re.error))
     }

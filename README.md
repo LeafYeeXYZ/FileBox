@@ -63,9 +63,9 @@ Set `SUPABASE_URL` and `SUPABASE_KEY` environment variables in `.env` file or `V
 
 在 `.env` 文件或 `Vercel` 中设置 `SUPABASE_URL` 和 `SUPABASE_KEY` 环境变量.
 
-Create a storage bucket named `filebox` and create a table named `filebox` in `Supabase` dashboard. The table should have the following columns: key (text), filename (text), created_at (timestamp).
+Create a storage bucket named `filebox` and create a table named `filebox` in `Supabase` dashboard. The table should have the following columns: key (text), filename (text), created_at (timestamp), filetype (text).
 
-在 `Supabase` 控制台中创建一个名为 `filebox` 的存储桶, 并创建一个名为 `filebox` 的表. 表应该有以下列: key (text), filename (text), created_at (timestamp).
+在 `Supabase` 控制台中创建一个名为 `filebox` 的存储桶, 并创建一个名为 `filebox` 的表. 表应该有以下列: key (text), filename (text), created_at (timestamp), filetype (text).
 
 ## 3.2 Deploy to [Vercel](https://vercel.com/)
 部署到 [Vercel](https://vercel.com/)
@@ -83,6 +83,7 @@ Create a storage bucket named `filebox` and create a table named `filebox` in `S
 | `NEXT_PUBLIC_DEFAULT_UPLOAD_PW` | Client Default Upload Password | - | No |
 | `NEXT_PUBLIC_DEFAULT_DOWNLOAD_PW` | Client Default Download Password | - | No |
 | `NEXT_PUBLIC_DEFAULT_STORAGE` | Client Default Storage Server<br>`r2` / `mongodb` / `file0` / `supabase` | `supabase` | No |
+| `NEXT_PUBLIC_DEFAULT_UPLOAD_TYPE` | Client Default Upload Type<br>`file` / `text` | `file` | No |
 
 # 5 Frontend Config
 | Name | Description |
@@ -106,8 +107,8 @@ Create a storage bucket named `filebox` and create a table named `filebox` in `S
 
 > `R2` 和 `MongoDB` 有不同的实时上传进度实现, 因为 vercel 对请求体大小有 4.5MB 的限制, 而 cloudflare workers 为 100MB. 因此, `MongoDB` 的上传速度比其他三种存储方案慢.
 
-# 7 Storage Architecture
-存储架构
+# 7 File Storage Architecture
+文件存储架构
 
 | Storage | File | Metadata |
 | :---: | :---: | :---: |

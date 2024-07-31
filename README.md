@@ -42,8 +42,8 @@ See [this project](https://github.com/LeafYeeXYZ/MyAPIs).
 
 见[此项目](https://github.com/LeafYeeXYZ/MyAPIs).
 
-### 3.1.2 For MongoDB (Not Recommended)
-如果使用 `MongoDB` (不推荐)
+### 3.1.2 For MongoDB
+如果使用 `MongoDB`
 
 Set `MONGODB_URI` environment variables in `.env` file or `Vercel`.
 

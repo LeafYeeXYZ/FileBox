@@ -278,7 +278,6 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
           const { value, done } = await reader.read()
           if (done) break
           data = new Uint8Array([...data, ...value])
-          console.log(data.byteLength, metadata!.size)
           flushSync(() => setProgress(15 + 84 * data.byteLength / metadata!.size))
         }
         const file = new Blob([data])

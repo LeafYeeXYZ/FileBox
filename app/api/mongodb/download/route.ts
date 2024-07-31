@@ -1,5 +1,11 @@
 import { MongoClient } from 'mongodb'
 
+// 连接 MongoDB
+const client = new MongoClient(process.env.MONGODB_URI!)
+const db = client.db('filebox')
+const metaColl = db.collection('meta')
+const fileColl = db.collection('files')
+
 export async function POST(req: Request) {
   try {
     // 获取请求体
@@ -10,11 +16,6 @@ export async function POST(req: Request) {
     if (password !== (process.env.FILEBOX_DOWNLOAD_PW ?? '')) {
       return new Response('下载密码错误', { status: 403 })
     }
-    // 连接 MongoDB
-    const client = new MongoClient(process.env.MONGODB_URI!)
-    const db = client.db('filebox')
-    const metaColl = db.collection('meta')
-    const fileColl = db.collection('files')
     // 查询数据
     const meta = await metaColl.findOne({ key }) as any
     if (!meta) {

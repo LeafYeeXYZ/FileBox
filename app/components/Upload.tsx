@@ -130,6 +130,7 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
       // 判断文件大小
       if (type === 'file' && file!.size > 1024 * 1024 * STORAGES.mongodb.maxUploadSize) throw new Error('文件过大')
       if (type === 'text' && text.length > 1024 * 1024 * 10) throw new Error('文本过长')
+      // 对于文本内容
       if (type === 'text') {
         // 发送上传请求
         flushSync(() => setProgress(10))
@@ -141,6 +142,7 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
           const error = await res.text()
           throw new Error(error)
         }
+      // 对于文件内容
       } else {
         // base64 编码
         const reader = new FileReader()
@@ -151,7 +153,7 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
         })
         const base64 = reader.result as string
         const base64Length = base64.length
-        const chunkSize = 1024 * 1024 * 4
+        const chunkSize = 1024 * 1024 * 1
         const chunkCount = Math.ceil(base64Length / chunkSize)
         const chunks = []
         for (let i = 0; i < chunkCount; i++) {

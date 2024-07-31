@@ -1,5 +1,8 @@
 import { createClient } from '@supabase/supabase-js'
 
+// 创建客户端
+const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_KEY!)
+
 export async function POST(req: Request) {
   try {
     // 获取请求体
@@ -10,8 +13,6 @@ export async function POST(req: Request) {
     if (password !== (process.env.FILEBOX_DOWNLOAD_PW ?? '')) {
       return new Response('下载密码错误', { status: 403 })
     }
-    // 创建客户端
-    const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_KEY!)
     // 查询数据
     let re: { error: any, data: any } = { error: null, data: null }
     let filetype = ''

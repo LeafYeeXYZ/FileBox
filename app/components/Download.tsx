@@ -413,22 +413,21 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
         <GiftOutlined /> 取件码
       </p>
       <Input
-        className='mb-2'
         placeholder={`请输入取件码, 当前存储服务: ${displayName}`}
         onChange={e => {
           keyRef.current = e.target.value
         }}
         disabled={isDownloading}
       />
-
-      <Switch
-        className='mt-1 mb-1'
-        checkedChildren='下载后删除云端文件'
-        unCheckedChildren='下载后删除云端文件'
-        defaultChecked
-        disabled={isDownloading}
-        onChange={checked => deleteRef.current = checked}
-      />
+      <div className='mt-3 mb-1 w-full'>
+        <Switch
+          checkedChildren='下载后删除云端文件'
+          unCheckedChildren='下载后删除云端文件'
+          defaultChecked
+          disabled={isDownloading}
+          onChange={checked => deleteRef.current = checked}
+        />
+      </div>
 
       <Progress
         className='mb-2 absolute bottom-8 left-0'
@@ -438,26 +437,28 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
         strokeColor={'#ff8080'}
       />
 
-      <Button
-        className='w-full absolute bottom-0 left-0'
-        onClick={async () => {
-          const storage = localStorage.getItem('STORAGE') ?? process.env.NEXT_PUBLIC_DEFAULT_STORAGE ?? 'supabase'
-          if (storage === 'r2') {
-            await handleDownloadR2(keyRef.current, deleteRef.current)
-          } else if (storage === 'mongodb') {
-            await handleDownloadMongodb(keyRef.current, deleteRef.current)
-          } else if (storage === 'file0') {
-            await handleDownloadFile0(keyRef.current, deleteRef.current)
-          } else if (storage === 'supabase') {
-            await handleDownloadSupabase(keyRef.current, deleteRef.current)
-          } else {
-            alert('系统错误: 未知的存储服务器')
-          }
-        }}
-        disabled={isDownloading}
-      >
-        {buttonContent}
-      </Button>
+      <div className='absolute bottom-0 left-0 w-full'>
+        <Button
+          block
+          onClick={async () => {
+            const storage = localStorage.getItem('STORAGE') ?? process.env.NEXT_PUBLIC_DEFAULT_STORAGE ?? 'supabase'
+            if (storage === 'r2') {
+              await handleDownloadR2(keyRef.current, deleteRef.current)
+            } else if (storage === 'mongodb') {
+              await handleDownloadMongodb(keyRef.current, deleteRef.current)
+            } else if (storage === 'file0') {
+              await handleDownloadFile0(keyRef.current, deleteRef.current)
+            } else if (storage === 'supabase') {
+              await handleDownloadSupabase(keyRef.current, deleteRef.current)
+            } else {
+              alert('系统错误: 未知的存储服务器')
+            }
+          }}
+          disabled={isDownloading}
+        >
+          {buttonContent}
+        </Button>
+      </div>
 
     </div>
   )

@@ -406,7 +406,7 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
           <FileOutlined /> 上传内容
         </p>
         <Radio.Group
-          className='mb-2 w-full'
+          className='w-full'
           defaultValue={localStorage.getItem('UPLOAD_TYPE') ?? process.env.NEXT_PUBLIC_DEFAULT_UPLOAD_TYPE ?? 'file'}
           onChange={e => {
             localStorage.setItem('UPLOAD_TYPE', e.target.value)
@@ -423,8 +423,8 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
           <Radio.Button value='text' className='w-1/2 text-center'>文本</Radio.Button>
         </Radio.Group>
 
-      {uploadType === 'file' ? (
-        <div>
+      <div className='mt-3'>
+        {uploadType === 'file' ? (
           <Up.Dragger
             name='file'
             multiple={false}
@@ -440,9 +440,7 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
             <p className='ant-upload-text'>点击或拖拽文件到此处</p>
             <p className='ant-upload-hint'>存储服务: {STORAGES[localStorage.getItem('STORAGE') ?? process.env.NEXT_PUBLIC_DEFAULT_STORAGE ?? 'supabase'].displayName} | 最大上传: {STORAGES[localStorage.getItem('STORAGE') ?? process.env.NEXT_PUBLIC_DEFAULT_STORAGE ?? 'supabase'].maxUploadSize}MB</p>
           </Up.Dragger>
-        </div>
-      ) : (
-        <div>
+        ) : (
           <Input.TextArea 
             placeholder={`请输入文本内容 (当前存储服务: ${STORAGES[localStorage.getItem('STORAGE') ?? process.env.NEXT_PUBLIC_DEFAULT_STORAGE ?? 'supabase'].displayName})`}
             onChange={e => {
@@ -451,8 +449,8 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
             disabled={isUploading}
             autoSize={{ minRows: 3, maxRows: 5 }}
           />
-        </div>
-      )}
+        )}
+      </div>
 
       <hr className='my-4' />
 
@@ -460,7 +458,6 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
         <GiftOutlined /> 取件码
       </p>
       <Input
-        className='mb-2'
         placeholder='请输入取件码'
         onChange={e => {
           keyRef.current = e.target.value
@@ -476,26 +473,28 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
         strokeColor={'#ff8080'}
       />
 
-      <Button
-        className='w-full absolute bottom-0 left-0'
-        onClick={async () => {
-          const storage = localStorage.getItem('STORAGE') ?? process.env.NEXT_PUBLIC_DEFAULT_STORAGE ?? 'supabase'
-          if (storage === 'r2') {
-            await handleUploadR2(keyRef.current, file, uploadText.current, uploadType as 'file' | 'text')
-          } else if (storage === 'mongodb') {
-            await handleUploadMongodb(keyRef.current, file, uploadText.current, uploadType as 'file' | 'text')
-          } else if (storage === 'file0') {
-            await handleUploadFile0(keyRef.current, file, uploadText.current, uploadType as 'file' | 'text')
-          } else if (storage === 'supabase') {
-            await handleUploadSupabase(keyRef.current, file, uploadText.current, uploadType as 'file' | 'text')
-          } else {
-            alert('系统错误: 未知的存储服务器')
-          }
-        }}
-        disabled={isUploading}
-      >
-        {buttonContent}
-      </Button>
+      <div className='w-full absolute bottom-0 left-0'>
+        <Button
+          block
+          onClick={async () => {
+            const storage = localStorage.getItem('STORAGE') ?? process.env.NEXT_PUBLIC_DEFAULT_STORAGE ?? 'supabase'
+            if (storage === 'r2') {
+              await handleUploadR2(keyRef.current, file, uploadText.current, uploadType as 'file' | 'text')
+            } else if (storage === 'mongodb') {
+              await handleUploadMongodb(keyRef.current, file, uploadText.current, uploadType as 'file' | 'text')
+            } else if (storage === 'file0') {
+              await handleUploadFile0(keyRef.current, file, uploadText.current, uploadType as 'file' | 'text')
+            } else if (storage === 'supabase') {
+              await handleUploadSupabase(keyRef.current, file, uploadText.current, uploadType as 'file' | 'text')
+            } else {
+              alert('系统错误: 未知的存储服务器')
+            }
+          }}
+          disabled={isUploading}
+        >
+          {buttonContent}
+        </Button>
+      </div>
 
     </div>
   )

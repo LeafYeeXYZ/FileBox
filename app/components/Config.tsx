@@ -14,27 +14,25 @@ export default function Config() {
           <UploadOutlined /> 上传密码
         </p>
         <Input.Password
-          className='mb-2'
           defaultValue={localStorage.getItem('UPLOAD_PW') ?? process.env.NEXT_PUBLIC_DEFAULT_UPLOAD_PW ?? ''}
           placeholder='请输入上传密码'
           onChange={e => localStorage.setItem('UPLOAD_PW', e.target.value)}
         />
 
-        <p className='mb-2 ml-1 text-rose-950 text-sm'>
+        <p className='my-2 ml-1 text-rose-950 text-sm'>
           <DownloadOutlined /> 下载密码
         </p>
         <Input.Password
-          className='mb-2'
           defaultValue={localStorage.getItem('DOWNLOAD_PW') ?? process.env.NEXT_PUBLIC_DEFAULT_DOWNLOAD_PW ?? ''}
           placeholder='请输入下载密码'
           onChange={e => localStorage.setItem('DOWNLOAD_PW', e.target.value)}
         />
 
-        <p className='mb-2 ml-1 text-rose-950 text-sm'>
+        <p className='my-2 ml-1 text-rose-950 text-sm'>
           <FileOutlined /> 存储服务器
         </p>
         <Radio.Group
-          className='mb-2 w-full'
+          className='w-full'
           defaultValue={localStorage.getItem('STORAGE') ?? process.env.NEXT_PUBLIC_DEFAULT_STORAGE ?? 'supabase'}
           onChange={e => {
             localStorage.setItem('STORAGE', e.target.value)
@@ -53,14 +51,13 @@ export default function Config() {
         </Radio.Group>
 
         <p 
-          className='mb-2 ml-1 text-rose-950 text-sm'
+          className='my-2 ml-1 text-rose-950 text-sm'
           style={{ display: appear ? 'block' : 'none' }}
         >
           <CloudOutlined /> R2 服务器地址
         </p>
         <Input
           style={{ display: appear ? 'block' : 'none' }}
-          className='mb-2'
           addonBefore='https://'
           addonAfter='/'
           defaultValue={localStorage.getItem('SERVER') ?? process.env.NEXT_PUBLIC_DEFAULT_SERVER ?? ''}
@@ -68,15 +65,17 @@ export default function Config() {
           onChange={e => localStorage.setItem('SERVER', e.target.value)}
         />
 
-        <Button
-          className='absolute bottom-0 left-0 w-full'
-          onClick={() => {
-            localStorage.clear()
-            window.location.reload()
-          }}
-        >
-          重置为默认值
-        </Button>
+        <div className='absolute bottom-0 left-0 w-full'>
+          <Button
+            block
+            onClick={() => {
+              localStorage.clear()
+              window.location.reload()
+            }}
+          >
+            重置为默认值
+          </Button>
+        </div>
     </div>
   )
 }

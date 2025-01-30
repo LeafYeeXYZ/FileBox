@@ -466,8 +466,13 @@ export default function Upload({ setDisabled, setIsModelOpen, setModelContent, s
       />
 
       <Progress
-        className='mb-2 absolute bottom-8 left-0'
-        style={{ display: isUploading ? 'block' : 'none' }}
+        style={{ 
+          display: isUploading ? 'block' : 'none',
+          position: 'absolute',
+          bottom: '2rem',
+          left: '0',
+          marginBottom: '0.5rem',
+        }}
         percent={Math.floor(progress)}
         status='active'
         strokeColor={'#ff8080'}

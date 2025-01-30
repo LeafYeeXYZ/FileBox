@@ -430,8 +430,13 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
       </div>
 
       <Progress
-        className='mb-2 absolute bottom-8 left-0'
-        style={{ display: isDownloading ? 'block' : 'none' }}
+        style={{ 
+          display: isDownloading ? 'block' : 'none',
+          position: 'absolute',
+          bottom: '2rem',
+          left: '0',
+          marginBottom: '0.5rem',
+        }}
         percent={Math.floor(progress)}
         status='active'
         strokeColor={'#ff8080'}

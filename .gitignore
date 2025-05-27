@@ -1,4 +1,8 @@
 .DS_Store
+workers/wrangler.toml
+workers/node_modules
+workers/.wrangler
+workers/dist
 
 # Logs
 logs

@@ -38,9 +38,9 @@ Above all, you should set `FILEBOX_UPLOAD_PW`, `FILEBOX_DOWNLOAD_PW` environment
 ### 3.1.1 For Cloudflare R2
 如果使用 `Cloudflare R2`
 
-See [this project](https://github.com/LeafYeeXYZ/MyAPIs).
+See `workers` directory.
 
-见[此项目](https://github.com/LeafYeeXYZ/MyAPIs).
+见 `workers` 目录.
 
 ### 3.1.2 For MongoDB
 如果使用 `MongoDB`

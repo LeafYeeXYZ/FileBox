@@ -94,7 +94,7 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
           setIsModelOpen(true)
         })
       } else {
-        const blob = new Blob([file])
+        const blob = new Blob([file.buffer as ArrayBuffer])
         const url = URL.createObjectURL(blob)
         const a = document.createElement('a')
         a.href = url
@@ -280,7 +280,7 @@ export default function Download({ setDisabled, setIsModelOpen, setModelTitle, s
           data = new Uint8Array([...data, ...value])
           flushSync(() => setProgress(15 + 84 * data.byteLength / metadata!.size))
         }
-        const file = new Blob([data])
+        const file = new Blob([data.buffer as ArrayBuffer])
         flushSync(() => setProgress(100))
         if (shouldDelete) {
           await f0.useToken(tokens.keyToken).delete()

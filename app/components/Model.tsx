@@ -16,7 +16,6 @@ export default function Modal({ title, content, isModelOpen, setIsModelOpen }: M
       title={title}
       onOk={() => setIsModelOpen(false)}
       onCancel={() => setIsModelOpen(false)}
-      onClose={() => setIsModelOpen(false)}
       open={isModelOpen}
       cancelText='取消'
       okText='确定'
